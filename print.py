@@ -1,3 +1,4 @@
+
 import sys
 import math
 from abc import ABC, abstractmethod
@@ -26,7 +27,7 @@ def board_initilisation():
 def board_initilisation2():
 	#let first decimal value 1 or 2 indicate player 1 or player 2 
 	#let second decimal value eqaute to the piece, 1 for pawn, 2 for knight, 3 for bishop, 4 for rook, 5 for queen, 6 for king. 
-	piece_board = [[24,22,23,25,r_king(),23,22,24], 
+	piece_board = [[r_rook(),22,23,r_queen(),r_king(),23,22,r_rook()], 
 	[r_pawn(),r_pawn(),r_pawn(),r_pawn(),r_pawn(),r_pawn(),r_pawn(),r_pawn()], 
 	[0,0,0,0,0,0,0,0], 
 	[0,0,0,0,0,0,0,0], 
@@ -102,7 +103,22 @@ class piece(ABC):
 	@abstractmethod
 	def __init__(self) -> None:
 		pass
+class r_rook(piece):
+	def __init__(self):
+			self.value = 3
+			self.trans = 24
+		
+	def valid_movement(self):
+		valid_movements=[]
 
+class r_queen(piece):
+	def __init__(self):
+			self.value = 9
+			self.trans = 25
+		
+	def valid_movement(self):
+		valid_movements=[]
+		
 class r_king(piece):
 	def __init__(self):
 		self.value = 10
@@ -127,9 +143,6 @@ class b_pawn(piece):
 	
 	def valid_movement(self):
 		valid_movements=[]
-
-
-
 
 
 board = board_initilisation()
