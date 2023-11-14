@@ -34,29 +34,61 @@ class r_rook(piece):
 		self.valid_movements=[]
         
 	def valid_movement(self):
-		self.valid_movements =[]
+		'''
+		For left_squares and up_squares the list is regenerated when seeing same team as there would be more empty positions to check
+		for right_squares and down_squares function calls break to stop for loop as seeing same team would mean no more positions to traverse
+		'''
 		left_vals = []
 		right_vals = []
 		down_vals = []
 		up_vals = []
 		#moving leftwards into rook appending valid movements
+
 		for left_squares in range(self.pos[1]):
 			if isinstance(piece_board[self.pos[0]][left_squares], piece):
 				#if its same team destroy all current
 				if piece_board[self.pos[0]][left_squares].trans // 10 == 2:
 					left_vals = []
+				else:
+					#still reset as can't move through the piece but reset and add everything else
+					left_vals = []
+					left_vals.append((self.pos[0],left_squares))
+			#empty position means add
 			else:
-				left_vals.append(piece_board[self.pos[0]][left_squares])
+				left_vals.append((self.pos[0],left_squares))
 
-		for right_squares in range(self.pos[1]+1, 9):
+		for right_squares in range(self.pos[1]+1, 8):
 			if isinstance(piece_board[self.pos[0]][right_squares], piece):
 				if piece_board[self.pos[0]][right_squares].trans // 10 == 2:
 					break
+				else:
+					right_vals.append((self.pos[0],right_squares))
+					break
 			else:
-				right_vals.append(piece_board[self.pos[0]][right_squares])
+				right_vals.append((self.pos[0],right_squares))
+				#right_vals.append(piece_board[self.pos[0]][right_squares])
 
-		#for down_squares in range()
-
+		#for all squares starting downwards 1 beneath the rook
+		for down_squares in range(((self.pos[0]+1)), 8):
+			#if we come across a piece
+			if isinstance(piece_board[down_squares][self.pos[1]], piece):
+				if piece_board[down_squares][self.pos[1]].trans // 10 == 2:
+					break
+				else:
+					down_vals.append((down_squares, self.pos[1]))
+					break
+			else:
+				down_vals.append((down_squares, self.pos[1]))
+		#moving from top to where rook is 
+		for up_squares in range(0, self.pos[0]):
+			if isinstance(piece_board[up_squares][self.pos[1]], piece):
+				if piece_board[up_squares][self.pos[1]].trans // 10 == 2:
+					up_vals = []
+				else:
+					up_vals = []
+					up_vals.append((up_squares, self.pos[1]))
+			else:
+				up_vals.append((up_squares, self.pos[1]))
 
 		self.valid_movements = left_vals + right_vals + down_vals + up_vals
 		
@@ -130,12 +162,67 @@ class b_queen(piece):
 		valid_movements=[]
     
 class b_rook(piece):
-    def __init__(self):
-            self.value = 3
-            self.trans = 14
+
+	def __init__(self, pos: (int,int)):
+			self.pos = pos
+			self.value = 3
+			self.trans = 14
+			self.valid_movements=[]
         
-    def valid_movement(self):
-        valid_movements=[]
+	def valid_movement(self):
+		left_vals = []
+		right_vals = []
+		down_vals = []
+		up_vals = []
+		#moving leftwards into rook appending valid movements
+
+		for left_squares in range(self.pos[1]):
+			if isinstance(piece_board[self.pos[0]][left_squares], piece):
+				#if its same team destroy all current
+				if piece_board[self.pos[0]][left_squares].trans // 10 == 1:
+					left_vals = []
+				else:
+					#still reset as can't move through the piece but reset and add everything else
+					left_vals = []
+					left_vals.append((self.pos[0],left_squares))
+			#empty position means add
+			else:
+				left_vals.append((self.pos[0],left_squares))
+
+		for right_squares in range(self.pos[1]+1, 8):
+			if isinstance(piece_board[self.pos[0]][right_squares], piece):
+				if piece_board[self.pos[0]][right_squares].trans // 10 == 1:
+					break
+				else:
+					right_vals.append((self.pos[0],right_squares))
+					break
+			else:
+				right_vals.append((self.pos[0],right_squares))
+				#right_vals.append(piece_board[self.pos[0]][right_squares])
+
+		#for all squares starting downwards 1 beneath the rook
+		for down_squares in range(((self.pos[0]+1)), 8):
+			#if we come across a piece
+			if isinstance(piece_board[down_squares][self.pos[1]], piece):
+				if piece_board[down_squares][self.pos[1]].trans // 10 == 1:
+					break
+				else:
+					down_vals.append((down_squares, self.pos[1]))
+					break
+			else:
+				down_vals.append((down_squares, self.pos[1]))
+		#moving from top to where rook is 
+		for up_squares in range(0, self.pos[0]):
+			if isinstance(piece_board[up_squares][self.pos[1]], piece):
+				if piece_board[up_squares][self.pos[1]].trans // 10 == 1:
+					up_vals = []
+				else:
+					up_vals = []
+					up_vals.append((up_squares, self.pos[1]))
+			else:
+				up_vals.append((up_squares, self.pos[1]))
+
+		self.valid_movements = left_vals + right_vals + down_vals + up_vals
 		
 class b_king(piece):
 	def __init__(self):
@@ -219,10 +306,10 @@ piece_board = [[r_rook((0,0)),r_knight(),r_bishop(),r_queen(),r_king(),r_bishop(
 [0,0,0,0,0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
 [b_pawn((6,0)),b_pawn((6,1)),b_pawn((6,2)),b_pawn((6,3)),b_pawn((6,4)),b_pawn((6,5)),b_pawn((6,6)),b_pawn((6,7))], 
-[b_rook(),b_knight(),b_bishop(),b_queen(),b_king(),b_bishop(),b_knight(),b_rook()]]
+[b_rook((7,0)),b_knight(),b_bishop(),b_queen(),b_king(),b_bishop(),b_knight(),b_rook((7,7))]]
 
 def print_board(board, piece_board, piece_dictionary):
-	os.system('cls')
+	#os.system('cls')
 	black_space = Back.BLACK
 	white_space = Back.WHITE
 	blue_piece = Fore.BLUE
@@ -283,10 +370,10 @@ def make_movement(dep, to):
 				#make new pieceboard position new piece
 				piece_board[pos_system[to][0]][pos_system[to][1]] = moving_piece
 		else:
-			print("error1")
+			print("Moving to a position that you cant move to")
 			raise ValueError
 	else:
-		print("erorr2")
+		print("There is no piece selected")
 		raise ValueError
 
 
