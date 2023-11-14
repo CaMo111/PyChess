@@ -26,13 +26,13 @@ def board_initilisation():
 def board_initilisation2():
 	#let first decimal value 1 or 2 indicate player 1 or player 2 
 	#let second decimal value eqaute to the piece, 1 for pawn, 2 for knight, 3 for bishop, 4 for rook, 5 for queen, 6 for king. 
-	piece_board = [[24,22,23,25,26,23,22,24], 
-	[21,21,21,21,21,21,21,21], 
+	piece_board = [[24,22,23,25,r_king(),23,22,24], 
+	[r_pawn(),r_pawn(),r_pawn(),r_pawn(),r_pawn(),r_pawn(),r_pawn(),r_pawn()], 
 	[0,0,0,0,0,0,0,0], 
 	[0,0,0,0,0,0,0,0], 
 	[0,0,0,0,0,0,0,0], 
 	[0,0,0,0,0,0,0,0], 
-	[11,11,11,11,11,11,11,11], 
+	[b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn()], 
 	[14,12,13,15,16,13,12,14]]
 	return piece_board
 
@@ -46,18 +46,19 @@ def print_board(board, piece_board, piece_dictionary):
 	king_piece = Fore.YELLOW
 	for i in range(0,8):
 		for j in range(0,8):
+			if isinstance(piece_board[i][j], piece):
 			#check if the piece we are looking at is blue
-			if piece_board[i][j] // 10 == 1:
-				if board[i][j] == 0:
-					final_board[i].append(white_space + blue_piece + piece_dictionary[piece_board[i][j]])
-				else:
-					final_board[i].append(black_space + blue_piece + piece_dictionary[piece_board[i][j]])
-			#check if the piece we are looking at is red        
-			elif piece_board[i][j] // 10 == 2:
-				if board[i][j] == 0:
-					final_board[i].append(white_space + red_piece + piece_dictionary[piece_board[i][j]])
-				else:
-					final_board[i].append(black_space + red_piece + piece_dictionary[piece_board[i][j]])
+				if piece_board[i][j].trans // 10 == 1:
+					if board[i][j] == 0:
+						final_board[i].append(white_space + blue_piece + piece_dictionary[piece_board[i][j].trans])
+					else:
+						final_board[i].append(black_space + blue_piece + piece_dictionary[piece_board[i][j].trans])
+				#check if the piece we are looking at is red        
+				elif piece_board[i][j].trans // 10 == 2:
+					if board[i][j] == 0:
+						final_board[i].append(white_space + red_piece + piece_dictionary[piece_board[i][j].trans])
+					else:
+						final_board[i].append(black_space + red_piece + piece_dictionary[piece_board[i][j].trans])
 			#the only other option is for the piece to be empty                 
 			else:
 				if board[i][j] == 0:
@@ -73,19 +74,19 @@ def print_board(board, piece_board, piece_dictionary):
 
 piece_dictionary = {
 	0 : "   ",
-	11 : " P ",		
-	12 : " K ",
-	13 : " B ",
-	14 : " R ",
-	15 : " Q ",
-	16 : " K ",
+	11 : " ♟︎ ",		
+	12 : " ♞ ",
+	13 : " ♝ ",
+	14 : " ♜ ",
+	15 : " ♛ ",
+	16 : " ♚ ",
 	
-	21 : " P ",
-	22 : " K ",
-	23 : " B ",
-	24 : " R ",
-	25 : " Q ",
-	26 : " K "
+	21 : " ♟︎ ",
+	22 : " ♞ ",
+	23 : " ♝ ",
+	24 : " ♜ ",
+	25 : " ♛ ",
+	26 : " ♚ "
 }
 
 
@@ -94,58 +95,44 @@ piece_dictionary = {
 #                               PIECE CLASS CREATION
 #
 #========================================================================================================================================================================
-
-
+#2 = red
+#1 = blue
 class piece(ABC):
 
-    def initial_pos(self, starting_pos):
-	    # getting x and y to put it into the board
-	    for num in range(1, 9):
-	        if num == starting_pos[1]:
-                 y = (num-1) 
-				 
-		letters = ["a","b","c","d","e","f","g","h"]
-			
-	    for characters in letters:
-		    if characters == starting_pos[0]:
-		         x = characters.index()
-        
+	@abstractmethod
+	def __init__(self) -> None:
+		pass
 
-    @abstractmethod
-    
-    def movement(self, departure, arrival):
-	    pass
-        
-    @abstractmethod
-    
-    def valid_movements(self):
-	    pass
-    
-    @abstractmethod
-    
-    def __str__(self) -> str:
-        pass
-        
-class pawn(piece):
+class r_king(piece):
+	def __init__(self):
+		self.value = 10
+		self.trans = 26
 	
-    def __init__(self, departure, arrival):
-        self.value = 1
+	def valid_movement(self):
+		valid_movements=[]
 
-    def movement(self, departure, arrival):
-	    pass
+class r_pawn(piece):
 
-    def valid_movements(self):
-        valid_movements = [] 
+	def __init__(self):
+		self.value = 1
+		self.trans = 21
+	
+	def valid_movement(self):
+		valid_movements=[]
 
-#========================================================================================================================================================================
-#
-#                               Game Navigation
-#
-#========================================================================================================================================================================
+class b_pawn(piece):
+	def __init__(self):
+		self.value = 1
+		self.trans = 11
+	
+	def valid_movement(self):
+		valid_movements=[]
+
+
+
 
 
 board = board_initilisation()
 piece_board = board_initilisation2()
 print_board(board, piece_board, piece_dictionary)
-print(final_board[0][0])
 
