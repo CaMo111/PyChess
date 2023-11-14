@@ -202,6 +202,7 @@ piece_board = [[r_rook(),r_knight(),r_bishop(),r_queen(),r_king(),r_bishop(),r_k
 [b_rook(),b_knight(),b_bishop(),b_queen(),b_king(),b_bishop(),b_knight(),b_rook()]]
 
 def print_board(board, piece_board, piece_dictionary):
+	os.system('cls')
 	black_space = Back.BLACK
 	white_space = Back.WHITE
 	blue_piece = Fore.BLUE
