@@ -1,4 +1,4 @@
-
+from piece import piece, r_pawn, r_queen, r_king, r_rook, b_pawn, r_knight, r_bishop, b_bishop, b_knight, b_king, b_queen, b_rook
 import sys
 import math
 from abc import ABC, abstractmethod
@@ -27,14 +27,14 @@ def board_initilisation():
 def board_initilisation2():
 	#let first decimal value 1 or 2 indicate player 1 or player 2 
 	#let second decimal value eqaute to the piece, 1 for pawn, 2 for knight, 3 for bishop, 4 for rook, 5 for queen, 6 for king. 
-	piece_board = [[r_rook(),22,23,r_queen(),r_king(),23,22,r_rook()], 
+	piece_board = [[r_rook(),r_knight(),r_bishop(),r_queen(),r_king(),r_bishop(),r_knight(),r_rook()], 
 	[r_pawn(),r_pawn(),r_pawn(),r_pawn(),r_pawn(),r_pawn(),r_pawn(),r_pawn()], 
 	[0,0,0,0,0,0,0,0], 
 	[0,0,0,0,0,0,0,0], 
 	[0,0,0,0,0,0,0,0], 
 	[0,0,0,0,0,0,0,0], 
 	[b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn()], 
-	[14,12,13,15,16,13,12,14]]
+	[b_rook(),b_knight(),b_bishop(),b_queen(),b_king(),b_bishop(),b_knight(),b_rook()]]
 	return piece_board
 
 blue_pieces = [] 
@@ -73,6 +73,9 @@ def print_board(board, piece_board, piece_dictionary):
 		print(Back.WHITE + Fore.BLACK + str(row_number[row]), finalrow)
 	print(Fore.BLACK +"   a",Fore.BLACK +" b",Fore.BLACK +" c",Fore.BLACK +" d",Fore.BLACK +" e",Fore.BLACK +" f",Fore.BLACK +" g",Fore.BLACK +" h ")
 
+def make_movement(piece):
+	pass
+
 piece_dictionary = {
 	0 : "   ",
 	11 : " ♟︎ ",		
@@ -98,52 +101,6 @@ piece_dictionary = {
 #========================================================================================================================================================================
 #2 = red
 #1 = blue
-class piece(ABC):
-
-	@abstractmethod
-	def __init__(self) -> None:
-		pass
-class r_rook(piece):
-	def __init__(self):
-			self.value = 3
-			self.trans = 24
-		
-	def valid_movement(self):
-		valid_movements=[]
-
-class r_queen(piece):
-	def __init__(self):
-			self.value = 9
-			self.trans = 25
-		
-	def valid_movement(self):
-		valid_movements=[]
-		
-class r_king(piece):
-	def __init__(self):
-		self.value = 10
-		self.trans = 26
-	
-	def valid_movement(self):
-		valid_movements=[]
-
-class r_pawn(piece):
-
-	def __init__(self):
-		self.value = 1
-		self.trans = 21
-	
-	def valid_movement(self):
-		valid_movements=[]
-
-class b_pawn(piece):
-	def __init__(self):
-		self.value = 1
-		self.trans = 11
-	
-	def valid_movement(self):
-		valid_movements=[]
-
 
 board = board_initilisation()
 piece_board = board_initilisation2()
