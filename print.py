@@ -14,13 +14,7 @@ class piece(ABC):
 	@abstractmethod
 	def valid_movement(self) -> None:
 		pass	
-	'''
-	def __del__(self):
-		self.value = 0 
-		self.trans=0
-		self.pos=None
-		self.valid_movements=None
-	'''
+
 #
 #RED PIECES
 #    
@@ -33,12 +27,38 @@ class r_queen(piece):
 		valid_movements=[]
     
 class r_rook(piece):
-    def __init__(self):
-            self.value = 3
-            self.trans = 24
+	def __init__(self, pos):
+		self.pos = pos
+		self.value = 3
+		self.trans = 24
+		self.valid_movements=[]
         
-    def valid_movement(self):
-        valid_movements=[]
+	def valid_movement(self):
+		self.valid_movements =[]
+		left_vals = []
+		right_vals = []
+		down_vals = []
+		up_vals = []
+		#moving leftwards into rook appending valid movements
+		for left_squares in range(self.pos[1]):
+			if isinstance(piece_board[self.pos[0]][left_squares], piece):
+				#if its same team destroy all current
+				if piece_board[self.pos[0]][left_squares].trans // 10 == 2:
+					left_vals = []
+			else:
+				left_vals.append(piece_board[self.pos[0]][left_squares])
+
+		for right_squares in range(self.pos[1]+1, 9):
+			if isinstance(piece_board[self.pos[0]][right_squares], piece):
+				if piece_board[self.pos[0]][right_squares].trans // 10 == 2:
+					break
+			else:
+				right_vals.append(piece_board[self.pos[0]][right_squares])
+
+		#for down_squares in range()
+
+
+		self.valid_movements = left_vals + right_vals + down_vals + up_vals
 		
 class r_king(piece):
 	def __init__(self):
@@ -192,7 +212,7 @@ board = [[0,1,0,1,0,1,0,1],
 [0,1,0,1,0,1,0,1], 
 [1,0,1,0,1,0,1,0]]
 
-piece_board = [[r_rook(),r_knight(),r_bishop(),r_queen(),r_king(),r_bishop(),r_knight(),r_rook()], 
+piece_board = [[r_rook((0,0)),r_knight(),r_bishop(),r_queen(),r_king(),r_bishop(),r_knight(),r_rook((0,7))], 
 [r_pawn((1,0)),r_pawn((1,1)),r_pawn((1,2)),r_pawn((1,3)),r_pawn((1,4)),r_pawn((1,5)),r_pawn((1,6)),r_pawn((1,7))], 
 [0,0,0,0,0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
@@ -243,7 +263,6 @@ def make_movement(dep, to):
 		moving_piece = piece_board[pos_system[dep][0]][pos_system[dep][1]]
 		#update the valid coordinate to move onto
 		moving_piece.valid_movement()
-		print(moving_piece.valid_movements)
 		#if where we are moving to is valid
 		if pos_system[to] in moving_piece.valid_movements:
 			#if there is nothing where we are going
@@ -264,8 +283,10 @@ def make_movement(dep, to):
 				#make new pieceboard position new piece
 				piece_board[pos_system[to][0]][pos_system[to][1]] = moving_piece
 		else:
+			print("error1")
 			raise ValueError
 	else:
+		print("erorr2")
 		raise ValueError
 
 
