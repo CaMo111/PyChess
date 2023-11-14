@@ -42,7 +42,6 @@ class r_pawn(piece):
 		self.pos = pos 
 		self.initial = True
 	
-	def valid_movement(self):
 		if self.initial == True:
 		    self.valid_movements=[(self.pos[0]+1, self.pos[1]), (self.pos[0]+2, self.pos[1])]
 			

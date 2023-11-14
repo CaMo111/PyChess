@@ -44,7 +44,7 @@ def print_board(board, piece_board, piece_dictionary):
 	white_space = Back.WHITE
 	blue_piece = Fore.BLUE
 	red_piece = Fore.RED
-	king_piece = Fore.YELLOW
+	final_board = [[],[],[],[],[],[],[],[]]
 	for i in range(0,8):
 		for j in range(0,8):
 			if isinstance(piece_board[i][j], piece):
@@ -77,17 +77,13 @@ def make_movement(dep, to):
 	#if there is a piece at the dep position
 	if isinstance(piece_board[pos_system[dep][0]][pos_system[dep][1]], piece):
 		moving_piece = piece_board[pos_system[dep][0]][pos_system[dep][1]]
-		
-
+		if pos_system[to] in moving_piece.valid_movements:
+			moving_piece.pos = (pos_system[to][0], pos_system[to][1])
+		else:
+			raise ValueError
 	else:
 		raise ValueError
 
-
-	if to in piece.valid_movements:
-		piece.pos = pos_system[to]
-		return piece.pos
-	else:
-		return ValueError
 
 pos_system = {
 	"a8" : (0,0),
@@ -193,3 +189,4 @@ board = board_initilisation()
 piece_board = board_initilisation2()
 print_board(board, piece_board, piece_dictionary)
 make_movement("a7", "a6")
+print_board(board, piece_board, piece_dictionary)
