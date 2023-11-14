@@ -1,10 +1,148 @@
-from piece import piece, r_pawn, r_queen, r_king, r_rook, b_pawn, r_knight, r_bishop, b_bishop, b_knight, b_king, b_queen, b_rook
+#from piece import piece, r_pawn, r_queen, r_king, r_rook, b_pawn, r_knight, r_bishop, b_bishop, b_knight, b_king, b_queen, b_rook
 import sys
 import math
 from abc import ABC, abstractmethod
 import os 
 import csv
 from colorama import Fore, Back, Style
+class piece(ABC):
+
+	@abstractmethod
+	def __init__(self) -> None:
+		pass
+
+	@abstractmethod
+	def valid_movement(self) -> None:
+		pass	
+#
+#RED PIECES
+#    
+class r_queen(piece):
+	def __init__(self):
+			self.value = 9
+			self.trans = 25
+		
+	def valid_movement(self):
+		valid_movements=[]
+    
+class r_rook(piece):
+    def __init__(self):
+            self.value = 3
+            self.trans = 24
+        
+    def valid_movement(self):
+        valid_movements=[]
+		
+class r_king(piece):
+	def __init__(self):
+		self.value = 10
+		self.trans = 26
+	
+	def valid_movement(self):
+		valid_movements=[]
+        
+class r_knight(piece):
+	def __init__(self):
+		self.value = 5
+		self.trans = 22
+	
+	def valid_movement(self):
+		valid_movements=[]
+
+class r_bishop(piece):
+	def __init__(self):
+		self.value = 5
+		self.trans = 23
+	
+	def valid_movement(self):
+		valid_movements=[]
+
+class r_pawn(piece):
+
+	def __init__(self, pos:(int, int)):
+		self.value = 1
+		self.trans = 21
+		#self.pos example is (1,0) for a7
+		self.pos = pos 
+		self.initial = True
+		self.valid_movements=[]
+
+	def valid_movement(self):
+		self.valid_movements=[]
+		if self.initial == True:
+			#if pieceboard at self.pos[0]+1, self.pos[1] is empty then add, if not dont add
+			if not(isinstance(piece_board[self.pos[0]+1][self.pos[1]],piece)):
+				self.valid_movements.append((self.pos[0]+1, self.pos[1]))
+			if not(isinstance(piece_board[self.pos[0]+2][self.pos[1]],piece)):
+				self.valid_movements.append((self.pos[0]+2, self.pos[1]))
+			self.initial = False
+		else:
+			if not(isinstance(piece_board[self.pos[0]+1][self.pos[1]],piece)):
+				self.valid_movements=[(self.pos[0]+1, self.pos[1])]
+		#If there is a piece diagonal down one RIGHT and its not same team
+
+		if isinstance(piece_board[self.pos[0]+1][self.pos[1]+1], piece):
+			#if its opposite team
+			if piece_board[self.pos[0]+1][self.pos[1]+1].trans // 10 == 1:
+				self.valid_movements.append((self.pos[0]+1,self.pos[1]+1))
+		# if 
+		if isinstance(piece_board[self.pos[0]+1][self.pos[1]-1], piece):
+			#if its opposite team
+			if piece_board[self.pos[0]+1][self.pos[1]+1].trans // 10 == 1:
+				self.valid_movements.append((self.pos[0]+1,self.pos[1]-1))
+#
+#BLUE PIECES
+#   
+
+class b_queen(piece):
+	def __init__(self):
+			self.value = 9
+			self.trans = 15
+		
+	def valid_movement(self):
+		valid_movements=[]
+    
+class b_rook(piece):
+    def __init__(self):
+            self.value = 3
+            self.trans = 14
+        
+    def valid_movement(self):
+        valid_movements=[]
+		
+class b_king(piece):
+	def __init__(self):
+		self.value = 10
+		self.trans = 16
+
+	def valid_movement(self):
+		valid_movements=[]
+
+class b_knight(piece):
+	def __init__(self):
+		self.value = 5
+		self.trans = 12
+	
+	def valid_movement(self):
+		valid_movements=[]
+
+class b_bishop(piece):
+    def __init__(self):
+            self.value = 5
+            self.trans = 13
+        
+    def valid_movement(self):
+        valid_movements=[]
+
+class b_pawn(piece):
+	def __init__(self):
+		self.value = 1
+		self.trans = 11
+		self.initial = True
+	
+	def valid_movement(self):
+		valid_movements=[]
+
 #========================================================================================================================================================================
 #
 #                               Board Initilisation
@@ -13,31 +151,24 @@ from colorama import Fore, Back, Style
 
 final_board = [[],[],[],[],[],[],[],[]]
 
-def board_initilisation():
-	board = [[0,1,0,1,0,1,0,1],
-	[1,0,1,0,1,0,1,0], 
-	[0,1,0,1,0,1,0,1], 
-	[1,0,1,0,1,0,1,0], 
-	[0,1,0,1,0,1,0,1], 
-	[1,0,1,0,1,0,1,0], 
-	[0,1,0,1,0,1,0,1], 
-	[1,0,1,0,1,0,1,0]]
-	return board
+	#def board_initilisation():
+board = [[0,1,0,1,0,1,0,1],
+[1,0,1,0,1,0,1,0], 
+[0,1,0,1,0,1,0,1], 
+[1,0,1,0,1,0,1,0], 
+[0,1,0,1,0,1,0,1], 
+[1,0,1,0,1,0,1,0], 
+[0,1,0,1,0,1,0,1], 
+[1,0,1,0,1,0,1,0]]
 
-def board_initilisation2():
-	#let first decimal value 1 or 2 indicate player 1 or player 2 
-	#let second decimal value eqaute to the piece, 1 for pawn, 2 for knight, 3 for bishop, 4 for rook, 5 for queen, 6 for king. 
-	piece_board = [[r_rook(),r_knight(),r_bishop(),r_queen(),r_king(),r_bishop(),r_knight(),r_rook()], 
-	[r_pawn((1,0)),r_pawn((1,1)),r_pawn((1,2)),r_pawn((1,3)),r_pawn((1,4)),r_pawn((1,5)),r_pawn((1,6)),r_pawn((1,7))], 
-	[0,0,0,0,0,0,0,0], 
-	[0,0,0,0,0,0,0,0], 
-	[0,0,0,0,0,0,0,0], 
-	[0,0,0,0,0,0,0,0], 
-	[b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn()], 
-	[b_rook(),b_knight(),b_bishop(),b_queen(),b_king(),b_bishop(),b_knight(),b_rook()]]
-	return piece_board
-
-blue_pieces = [] 
+piece_board = [[r_rook(),r_knight(),r_bishop(),r_queen(),r_king(),r_bishop(),r_knight(),r_rook()], 
+[r_pawn((1,0)),r_pawn((1,1)),r_pawn((1,2)),r_pawn((1,3)),r_pawn((1,4)),r_pawn((1,5)),r_pawn((1,6)),r_pawn((1,7))], 
+[0,0,0,0,0,0,0,0], 
+[0,0,0,0,0,0,0,0], 
+[0,0,0,0,0,0,0,0], 
+[0,0,0,0,0,0,0,0], 
+[b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn()], 
+[b_rook(),b_knight(),b_bishop(),b_queen(),b_king(),b_bishop(),b_knight(),b_rook()]]
 
 def print_board(board, piece_board, piece_dictionary):
 	black_space = Back.BLACK
@@ -78,14 +209,15 @@ def make_movement(dep, to):
 	#if there is a piece at the dep position
 	if isinstance(piece_board[pos_system[dep][0]][pos_system[dep][1]], piece):
 		moving_piece = piece_board[pos_system[dep][0]][pos_system[dep][1]]
+		#update the valid coordinate to move onto
+		moving_piece.valid_movement()
+		print(moving_piece.valid_movements)
 		if pos_system[to] in moving_piece.valid_movements:
 			moving_piece.pos = (pos_system[to][0], pos_system[to][1])
 			#make old pieceboard piece nothing
 			piece_board[pos_system[dep][0]][pos_system[dep][1]] = 0
 			#make new pieceboard position new piece
 			piece_board[pos_system[to][0]][pos_system[to][1]] = moving_piece
-
-			print(moving_piece.pos)
 		else:
 			raise ValueError
 	else:
@@ -191,10 +323,14 @@ piece_dictionary = {
 #========================================================================================================================================================================
 #2 = red
 #1 = blue
+print_board(board, piece_board, piece_dictionary)
+make_movement("a7", "a5")
+print_board(board, piece_board, piece_dictionary)
+make_movement("a5", "a4")
+print_board(board, piece_board, piece_dictionary)
+make_movement("a4", "a3")
+print_board(board, piece_board, piece_dictionary)
+make_movement("a3", "b2")
+print_board(board, piece_board, piece_dictionary)
 
-board = board_initilisation()
-piece_board = board_initilisation2()
-print_board(board, piece_board, piece_dictionary)
-make_movement("a7", "a6")
-print_board(board, piece_board, piece_dictionary)
 #have to update the piece board each time to print
