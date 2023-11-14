@@ -14,6 +14,13 @@ class piece(ABC):
 	@abstractmethod
 	def valid_movement(self) -> None:
 		pass	
+	'''
+	def __del__(self):
+		self.value = 0 
+		self.trans=0
+		self.pos=None
+		self.valid_movements=None
+	'''
 #
 #RED PIECES
 #    
@@ -82,13 +89,13 @@ class r_pawn(piece):
 		#If there is a piece diagonal down one RIGHT and its not same team
 
 		if isinstance(piece_board[self.pos[0]+1][self.pos[1]+1], piece):
-			#if its opposite team
-			if piece_board[self.pos[0]+1][self.pos[1]+1].trans // 10 == 1:
+			#not equal as we want to make sure its not red
+			if piece_board[self.pos[0]+1][self.pos[1]+1].trans // 10 != 2:
 				self.valid_movements.append((self.pos[0]+1,self.pos[1]+1))
 		# if 
 		if isinstance(piece_board[self.pos[0]+1][self.pos[1]-1], piece):
 			#if its opposite team
-			if piece_board[self.pos[0]+1][self.pos[1]+1].trans // 10 == 1:
+			if piece_board[self.pos[0]+1][self.pos[1]+1].trans // 10 == 2:
 				self.valid_movements.append((self.pos[0]+1,self.pos[1]-1))
 #
 #BLUE PIECES
@@ -135,13 +142,37 @@ class b_bishop(piece):
         valid_movements=[]
 
 class b_pawn(piece):
-	def __init__(self):
+
+	def __init__(self, pos:(int, int)):
 		self.value = 1
 		self.trans = 11
 		self.initial = True
+		valid_movements=[]
+		self.pos = pos
 	
 	def valid_movement(self):
-		valid_movements=[]
+		self.valid_movements=[]
+		if self.initial == True:
+			#if pieceboard at self.pos[0]+1, self.pos[1] is empty then add, if not dont add
+			if not(isinstance(piece_board[self.pos[0]-1][self.pos[1]],piece)):
+				self.valid_movements.append((self.pos[0]-1, self.pos[1]))
+			if not(isinstance(piece_board[self.pos[0]-2][self.pos[1]],piece)):
+				self.valid_movements.append((self.pos[0]-2, self.pos[1]))
+			self.initial = False
+		else:
+			if not(isinstance(piece_board[self.pos[0]-1][self.pos[1]],piece)):
+				self.valid_movements=[(self.pos[0]-1, self.pos[1])]
+		#If there is a piece diagonal down one RIGHT and its not same team
+
+		if isinstance(piece_board[self.pos[0]-1][self.pos[1]+1], piece):
+			#if its opposite team
+			if piece_board[self.pos[0]-1][self.pos[1]+1].trans // 10 == 2:
+				self.valid_movements.append((self.pos[0]-1,self.pos[1]+1))
+		# if 
+		if isinstance(piece_board[self.pos[0]-1][self.pos[1]-1], piece):
+			#if its opposite team
+			if piece_board[self.pos[0]-1][self.pos[1]-1].trans // 10 == 2:
+				self.valid_movements.append((self.pos[0]-1,self.pos[1]-1))
 
 #========================================================================================================================================================================
 #
@@ -167,7 +198,7 @@ piece_board = [[r_rook(),r_knight(),r_bishop(),r_queen(),r_king(),r_bishop(),r_k
 [0,0,0,0,0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
-[b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn(),b_pawn()], 
+[b_pawn((6,0)),b_pawn((6,1)),b_pawn((6,2)),b_pawn((6,3)),b_pawn((6,4)),b_pawn((6,5)),b_pawn((6,6)),b_pawn((6,7))], 
 [b_rook(),b_knight(),b_bishop(),b_queen(),b_king(),b_bishop(),b_knight(),b_rook()]]
 
 def print_board(board, piece_board, piece_dictionary):
@@ -212,12 +243,25 @@ def make_movement(dep, to):
 		#update the valid coordinate to move onto
 		moving_piece.valid_movement()
 		print(moving_piece.valid_movements)
+		#if where we are moving to is valid
 		if pos_system[to] in moving_piece.valid_movements:
-			moving_piece.pos = (pos_system[to][0], pos_system[to][1])
-			#make old pieceboard piece nothing
-			piece_board[pos_system[dep][0]][pos_system[dep][1]] = 0
-			#make new pieceboard position new piece
-			piece_board[pos_system[to][0]][pos_system[to][1]] = moving_piece
+			#if there is nothing where we are going
+			if not(isinstance(piece_board[pos_system[to][0]][pos_system[to][1]], piece)):
+				print("called1")
+				moving_piece.pos = (pos_system[to][0], pos_system[to][1])
+				#make old pieceboard piece nothing
+				piece_board[pos_system[dep][0]][pos_system[dep][1]] = 0
+				#make new pieceboard position new piece
+				piece_board[pos_system[to][0]][pos_system[to][1]] = moving_piece
+			else:
+				print("called2")
+				#There is something where we are moving and have to replace it
+				piece_board[pos_system[to][0]][pos_system[to][1]] = 0
+				moving_piece.pos = (pos_system[to][0], pos_system[to][1])
+				#make old pieceboard piece nothing
+				piece_board[pos_system[dep][0]][pos_system[dep][1]] = 0
+				#make new pieceboard position new piece
+				piece_board[pos_system[to][0]][pos_system[to][1]] = moving_piece
 		else:
 			raise ValueError
 	else:
@@ -315,6 +359,16 @@ piece_dictionary = {
 	26 : " ♚ "
 }
 
+def gen_game():
+	game_over=False
+	while not game_over:
+		print_board(board, piece_board, piece_dictionary)
+		fro, to = str(input("where from")), str(input("where to"))
+		make_movement(fro, to)
+
+
+	
+
 
 #========================================================================================================================================================================
 #
@@ -323,14 +377,6 @@ piece_dictionary = {
 #========================================================================================================================================================================
 #2 = red
 #1 = blue
-print_board(board, piece_board, piece_dictionary)
-make_movement("a7", "a5")
-print_board(board, piece_board, piece_dictionary)
-make_movement("a5", "a4")
-print_board(board, piece_board, piece_dictionary)
-make_movement("a4", "a3")
-print_board(board, piece_board, piece_dictionary)
-make_movement("a3", "b2")
-print_board(board, piece_board, piece_dictionary)
+gen_game()
 
 #have to update the piece board each time to print
