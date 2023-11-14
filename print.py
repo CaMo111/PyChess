@@ -44,6 +44,7 @@ def print_board(board, piece_board, piece_dictionary):
 	white_space = Back.WHITE
 	blue_piece = Fore.BLUE
 	red_piece = Fore.RED
+	print("\n \n \n")
 	final_board = [[],[],[],[],[],[],[],[]]
 	for i in range(0,8):
 		for j in range(0,8):
@@ -79,6 +80,12 @@ def make_movement(dep, to):
 		moving_piece = piece_board[pos_system[dep][0]][pos_system[dep][1]]
 		if pos_system[to] in moving_piece.valid_movements:
 			moving_piece.pos = (pos_system[to][0], pos_system[to][1])
+			#make old pieceboard piece nothing
+			piece_board[pos_system[dep][0]][pos_system[dep][1]] = 0
+			#make new pieceboard position new piece
+			piece_board[pos_system[to][0]][pos_system[to][1]] = moving_piece
+
+			print(moving_piece.pos)
 		else:
 			raise ValueError
 	else:
@@ -190,3 +197,4 @@ piece_board = board_initilisation2()
 print_board(board, piece_board, piece_dictionary)
 make_movement("a7", "a6")
 print_board(board, piece_board, piece_dictionary)
+#have to update the piece board each time to print
