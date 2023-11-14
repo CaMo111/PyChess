@@ -35,15 +35,18 @@ class r_king(piece):
 
 class r_pawn(piece):
 
-	def __init__(self, pos):
+	def __init__(self, pos:(int, int)):
 		self.value = 1
 		self.trans = 21
+		#self.pos example is (1,0) for a7
 		self.pos = pos 
 		self.initial = True
 	
 	def valid_movement(self):
-		valid_movements=[]
-		
+		if self.initial == True:
+		    self.valid_movements=[(self.pos[0]+1, self.pos[1]), (self.pos[0]+2, self.pos[1])]
+			
+        
 class r_knight(piece):
 	def __init__(self):
 		self.value = 5
