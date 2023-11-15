@@ -16,6 +16,7 @@ class piece(ABC):
 		pass	
 
 #
+#test
 #RED PIECES
 #    
 class r_queen(piece):
@@ -38,6 +39,7 @@ class r_rook(piece):
 		For left_squares and up_squares the list is regenerated when seeing same team as there would be more empty positions to check
 		for right_squares and down_squares function calls break to stop for loop as seeing same team would mean no more positions to traverse
 		'''
+		self.valid_movements=[]
 		left_vals = []
 		right_vals = []
 		down_vals = []
@@ -109,12 +111,86 @@ class r_knight(piece):
 		valid_movements=[]
 
 class r_bishop(piece):
-	def __init__(self):
-		self.value = 5
+	def __init__(self, pos: (int,int)):
+		self.pos = pos
+		self.value = 3
 		self.trans = 23
+		self.valid_movements=[]
 	
 	def valid_movement(self):
+		#create a function that ensures that depart isn't the same as to
 		valid_movements=[]
+		y_co = self.pos[0]-1
+		x_co = self.pos[1]-1
+		#Diagonal Up-Left (y is decreasing, x is decreasing)
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 2:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co -=1 
+				x_co -=1
+		#Diagonal Up-Right (y is decreasing, x is increasing)
+		#reset these
+		y_co = self.pos[0]-1
+		x_co = self.pos[1]+1
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 2:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co -=1 
+				x_co +=1
+		#Diagonal Down-Left (y is increasing, x is decreasing)
+		y_co = self.pos[0]+1
+		x_co = self.pos[1]-1
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 2:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co +=1 
+				x_co -=1
+		#Diagonal Down-Right (y is increasing, x is increasing)
+		y_co = self.pos[0]+1
+		x_co = self.pos[1]+1
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 2:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co +=1 
+				x_co +=1
+		print(self.valid_movements)
+
 
 class r_pawn(piece):
 
@@ -170,6 +246,7 @@ class b_rook(piece):
 			self.valid_movements=[]
         
 	def valid_movement(self):
+		self.valid_movements=[]
 		left_vals = []
 		right_vals = []
 		down_vals = []
@@ -299,7 +376,7 @@ board = [[0,1,0,1,0,1,0,1],
 [0,1,0,1,0,1,0,1], 
 [1,0,1,0,1,0,1,0]]
 
-piece_board = [[r_rook((0,0)),r_knight(),r_bishop(),r_queen(),r_king(),r_bishop(),r_knight(),r_rook((0,7))], 
+piece_board = [[r_rook((0,0)),r_knight(),r_bishop((0,2)),r_queen(),r_king(),r_bishop((0,5)),r_knight(),r_rook((0,7))], 
 [r_pawn((1,0)),r_pawn((1,1)),r_pawn((1,2)),r_pawn((1,3)),r_pawn((1,4)),r_pawn((1,5)),r_pawn((1,6)),r_pawn((1,7))], 
 [0,0,0,0,0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
@@ -345,6 +422,8 @@ def print_board(board, piece_board, piece_dictionary):
 	print(Fore.BLACK +"   a",Fore.BLACK +" b",Fore.BLACK +" c",Fore.BLACK +" d",Fore.BLACK +" e",Fore.BLACK +" f",Fore.BLACK +" g",Fore.BLACK +" h ")
 
 def make_movement(dep, to):
+	if dep == to:
+		raise ValueError
 	#if there is a piece at the dep position
 	if isinstance(piece_board[pos_system[dep][0]][pos_system[dep][1]], piece):
 		moving_piece = piece_board[pos_system[dep][0]][pos_system[dep][1]]
@@ -354,14 +433,12 @@ def make_movement(dep, to):
 		if pos_system[to] in moving_piece.valid_movements:
 			#if there is nothing where we are going
 			if not(isinstance(piece_board[pos_system[to][0]][pos_system[to][1]], piece)):
-				print("called1")
 				moving_piece.pos = (pos_system[to][0], pos_system[to][1])
 				#make old pieceboard piece nothing
 				piece_board[pos_system[dep][0]][pos_system[dep][1]] = 0
 				#make new pieceboard position new piece
 				piece_board[pos_system[to][0]][pos_system[to][1]] = moving_piece
 			else:
-				print("called2")
 				#There is something where we are moving and have to replace it
 				piece_board[pos_system[to][0]][pos_system[to][1]] = 0
 				moving_piece.pos = (pos_system[to][0], pos_system[to][1])
