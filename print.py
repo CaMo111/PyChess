@@ -107,12 +107,98 @@ class r_king(piece):
 		valid_movements=[]
         
 class r_knight(piece):
-	def __init__(self):
+	def __init__(self, pos: (int,int)):
 		self.value = 5
+		self.pos = pos
 		self.trans = 22
+		self.valid_movements=[]
 	
 	def valid_movement(self):
 		valid_movements=[]
+		for idx, values in enumerate(range(4)):
+			if idx == 0:
+				#check far left up 1 eg y-1, x-2
+				if (self.pos[0]-1) < 0 or (self.pos[1]-2) < 0 or (self.pos[0]-1) >7 or (self.pos[1]-2) >7:
+					pass
+				elif isinstance(piece_board[self.pos[0]-1][self.pos[1]-2], piece):
+					if piece_board[self.pos[0]-1][self.pos[1]-2].trans // 10 != 2:
+						self.valid_movements.append((self.pos[0]-1, self.pos[1]-2))
+				else:
+					self.valid_movements.append((self.pos[0]-1, self.pos[1]-2))
+				
+				#check far left down 1; eg y+1 x-2
+				if (self.pos[0]+1) < 0 or (self.pos[1]-2) < 0 or (self.pos[0]+1) >7 or (self.pos[1]-2) >7:
+					pass
+				elif isinstance(piece_board[self.pos[0]+1][self.pos[1]-2], piece):
+					if piece_board[self.pos[0]+1][self.pos[1]-2].trans // 10 != 2:
+						self.valid_movements.append((self.pos[0]+1, self.pos[1]-2))
+				else:
+					self.valid_movements.append((self.pos[0]+1, self.pos[1]-2))
+
+			elif idx == 1:
+				#check 1 left up two
+				y_cord = self.pos[0]-2
+				x_cord = self.pos[1]-1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#check 1 left down two
+				y_cord = self.pos[0]+2
+				x_cord = self.pos[1]-1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+
+			elif idx == 2:
+				#check right up two
+				y_cord = self.pos[0]-2
+				x_cord = self.pos[1]+1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#check right down two
+				y_cord = self.pos[0]+2
+				x_cord = self.pos[1]+1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+			else:
+				#check far right up 1 
+				y_cord = self.pos[0]-1
+				x_cord = self.pos[1]+2
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#check far right down 1 
+				y_cord = self.pos[0]+1
+				x_cord = self.pos[1]+2
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
 
 class r_bishop(piece):
 	def __init__(self, pos: (int,int)):
@@ -193,7 +279,6 @@ class r_bishop(piece):
 				self.valid_movements.append((y_co,x_co))
 				y_co +=1 
 				x_co +=1
-		print(self.valid_movements)
 
 
 class r_pawn(piece):
@@ -314,12 +399,101 @@ class b_king(piece):
 		valid_movements=[]
 
 class b_knight(piece):
-	def __init__(self):
+	def __init__(self, pos:(int,int)):
 		self.value = 5
+		self.pos = pos
 		self.trans = 12
+		self.valid_movements = []
 	
 	def valid_movement(self):
-		valid_movements=[]
+		self.valid_movements=[]
+		for idx, values in enumerate(range(4)):
+			#make this 1 function and put as a function of the knight function that passes which team 
+			#and what coordinates to check. Pre define the coordinates as a tuple list and iterate through calling the function
+			#each time.
+			if idx == 0:
+				#check far left up 1 eg y-1, x-2
+				if (self.pos[0]-1) < 0 or (self.pos[1]-2) < 0 or (self.pos[0]-1) >7 or (self.pos[1]-2) >7:
+					pass
+				elif isinstance(piece_board[self.pos[0]-1][self.pos[1]-2], piece):
+					if piece_board[self.pos[0]-1][self.pos[1]-2].trans // 10 != 1:
+						self.valid_movements.append((self.pos[0]-1, self.pos[1]-2))
+				else:
+					self.valid_movements.append((self.pos[0]-1, self.pos[1]-2))
+				
+				#check far left down 1; eg y+1 x-2
+				if (self.pos[0]+1) < 0 or (self.pos[1]-2) < 0 or (self.pos[0]+1) >7 or (self.pos[1]-2) >7:
+					pass
+				elif isinstance(piece_board[self.pos[0]+1][self.pos[1]-2], piece):
+					if piece_board[self.pos[0]+1][self.pos[1]-2].trans // 10 != 1:
+						self.valid_movements.append((self.pos[0]+1, self.pos[1]-2))
+				else:
+					self.valid_movements.append((self.pos[0]+1, self.pos[1]-2))
+
+			elif idx == 1:
+				#check 1 left up two
+				y_cord = self.pos[0]-2
+				x_cord = self.pos[1]-1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#check 1 left down two
+				y_cord = self.pos[0]+2
+				x_cord = self.pos[1]-1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+
+			elif idx == 2:
+				#check right up two
+				y_cord = self.pos[0]-2
+				x_cord = self.pos[1]+1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#check right down two
+				y_cord = self.pos[0]+2
+				x_cord = self.pos[1]+1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+			else:
+				#check far right up 1 
+				y_cord = self.pos[0]-1
+				x_cord = self.pos[1]+2
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#check far right down 1 
+				y_cord = self.pos[0]+1
+				x_cord = self.pos[1]+2
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
 
 class b_bishop(piece):
 	def __init__(self, pos: (int,int)):
@@ -452,14 +626,14 @@ board = [[0,1,0,1,0,1,0,1],
 [0,1,0,1,0,1,0,1], 
 [1,0,1,0,1,0,1,0]]
 
-piece_board = [[r_rook((0,0)),r_knight(),r_bishop((0,2)),r_queen(),r_king(),r_bishop((0,5)),r_knight(),r_rook((0,7))], 
+piece_board = [[r_rook((0,0)),r_knight((0,1)),r_bishop((0,2)),r_queen(),r_king(),r_bishop((0,5)),r_knight((0,6)),r_rook((0,7))], 
 [r_pawn((1,0)),r_pawn((1,1)),r_pawn((1,2)),r_pawn((1,3)),r_pawn((1,4)),r_pawn((1,5)),r_pawn((1,6)),r_pawn((1,7))], 
 [0,0,0,0,0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
 [b_pawn((6,0)),b_pawn((6,1)),b_pawn((6,2)),b_pawn((6,3)),b_pawn((6,4)),b_pawn((6,5)),b_pawn((6,6)),b_pawn((6,7))], 
-[b_rook((7,0)),b_knight(),b_bishop((7,2)),b_queen(),b_king(),b_bishop((7,5)),b_knight(),b_rook((7,7))]]
+[b_rook((7,0)),b_knight((7,1)),b_bishop((7,2)),b_queen(),b_king(),b_bishop((7,5)),b_knight((7,6)),b_rook((7,7))]]
 
 def print_board(board, piece_board, piece_dictionary):
 	#os.system('cls')
