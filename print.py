@@ -5,6 +5,10 @@ from abc import ABC, abstractmethod
 import os 
 import csv
 from colorama import Fore, Back, Style
+#SPECIAL CONSIDERATIONS:
+#Special Move #1 Promotion
+#Special Move #2 Passant - capturing pawn after moving twice
+#Special Move #3 Castling
 class piece(ABC):
 
 	@abstractmethod
@@ -318,12 +322,84 @@ class b_knight(piece):
 		valid_movements=[]
 
 class b_bishop(piece):
-    def __init__(self):
-            self.value = 5
-            self.trans = 13
+	def __init__(self, pos: (int,int)):
+		self.value = 5
+		self.trans = 13
+		self.valid_movements = []
+		self.pos = pos
         
-    def valid_movement(self):
-        valid_movements=[]
+	def valid_movement(self):
+		#create a function that ensures that depart isn't the same as to
+		valid_movements=[]
+		y_co = self.pos[0]-1
+		x_co = self.pos[1]-1
+		#Diagonal Up-Left (y is decreasing, x is decreasing)
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 1:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co -=1 
+				x_co -=1
+		#Diagonal Up-Right (y is decreasing, x is increasing)
+		#reset these
+		y_co = self.pos[0]-1
+		x_co = self.pos[1]+1
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 1:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co -=1 
+				x_co +=1
+		#Diagonal Down-Left (y is increasing, x is decreasing)
+		y_co = self.pos[0]+1
+		x_co = self.pos[1]-1
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 1:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co +=1 
+				x_co -=1
+		#Diagonal Down-Right (y is increasing, x is increasing)
+		y_co = self.pos[0]+1
+		x_co = self.pos[1]+1
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 1:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co +=1 
+				x_co +=1
 
 class b_pawn(piece):
 
@@ -383,7 +459,7 @@ piece_board = [[r_rook((0,0)),r_knight(),r_bishop((0,2)),r_queen(),r_king(),r_bi
 [0,0,0,0,0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
 [b_pawn((6,0)),b_pawn((6,1)),b_pawn((6,2)),b_pawn((6,3)),b_pawn((6,4)),b_pawn((6,5)),b_pawn((6,6)),b_pawn((6,7))], 
-[b_rook((7,0)),b_knight(),b_bishop(),b_queen(),b_king(),b_bishop(),b_knight(),b_rook((7,7))]]
+[b_rook((7,0)),b_knight(),b_bishop((7,2)),b_queen(),b_king(),b_bishop((7,5)),b_knight(),b_rook((7,7))]]
 
 def print_board(board, piece_board, piece_dictionary):
 	#os.system('cls')
