@@ -1,6 +1,7 @@
 #from piece import piece, r_pawn, r_queen, r_king, r_rook, b_pawn, r_knight, r_bishop, b_bishop, b_knight, b_king, b_queen, b_rook
 import sys
 import math
+import copy
 from abc import ABC, abstractmethod
 import os 
 import csv
@@ -242,6 +243,7 @@ class r_king(piece):
 		self.invalid_moves = []
 		self.valid_movements = []
 		#get all invalid coordinates
+		#adding every non good move
 		for columns in range(8):
 			for row_cells in range(8):
 				if isinstance(piece_board[columns][row_cells], piece):
@@ -255,14 +257,15 @@ class r_king(piece):
 						self.invalid_moves.append((columns, row_cells+1))
 						self.invalid_moves.append((columns+1, row_cells-1))
 						self.invalid_moves.append((columns+1, row_cells+1))
-						
+
 					elif isinstance(piece_board[columns][row_cells], b_pawn):
 						self.invalid_moves.append((columns-1,row_cells-1))
 						self.invalid_moves.append((columns-1,row_cells+1))
-					elif piece_board[columns][row_cells].trans // 10 != 2:
-						piece_board[columns][row_cells].valid_movement()
-						for coordinates in piece_board[columns][row_cells].valid_movements:
-								self.invalid_moves.append(coordinates)
+					else:
+						if piece_board[columns][row_cells].trans // 10 != 2:
+							piece_board[columns][row_cells].valid_movement()
+							for coordinates in piece_board[columns][row_cells].valid_movements:
+									self.invalid_moves.append(coordinates)
 
 		for idx, i in enumerate(range(3)):
 			#left around
@@ -273,8 +276,13 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						#taking a piece
-						self.valid_movements.append((y_cord, x_cord))
+						#taking a piece should only append if taking doesnt result in check
+						#make check() function that returns true or false; by creating a 
+						#deep copy of the board, taking the peice and seeing if check is true
+						#if its true, do not append as a valid move
+						#if moving doesn't result in check
+						if not check(piece_dictionary, self, (y_cord,x_cord)):
+							self.valid_movements.append((y_cord, x_cord))
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#middle left one 
@@ -284,7 +292,8 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						self.valid_movements.append((y_cord, x_cord))
+						if not check(piece_dictionary, self, (y_cord,x_cord)):
+							self.valid_movements.append((y_cord, x_cord))
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#check 1 left down one
@@ -294,7 +303,8 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						self.valid_movements.append((y_cord, x_cord))
+						if not check(piece_dictionary, self, (y_cord,x_cord)):
+							self.valid_movements.append((y_cord, x_cord))
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 			#middle top bottom
@@ -305,7 +315,8 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						self.valid_movements.append((y_cord, x_cord))
+						if not check(piece_dictionary, self, (y_cord,x_cord)):
+							self.valid_movements.append((y_cord, x_cord))
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#other
@@ -315,7 +326,8 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						self.valid_movements.append((y_cord, x_cord))
+						if not check(piece_dictionary, self, (y_cord,x_cord)):
+							self.valid_movements.append((y_cord, x_cord))
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 			#right; top middle and bottom.
@@ -326,7 +338,8 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						self.valid_movements.append((y_cord, x_cord))
+						if not check(piece_dictionary, self, (y_cord,x_cord)):
+							self.valid_movements.append((y_cord, x_cord))
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#middle left one 
@@ -336,7 +349,8 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						self.valid_movements.append((y_cord, x_cord))
+						if not check(piece_dictionary, self, (y_cord,x_cord)):
+							self.valid_movements.append((y_cord, x_cord))
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#check 1 left down one
@@ -346,9 +360,11 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						self.valid_movements.append((y_cord, x_cord))
+						if not check(piece_dictionary, self, (y_cord,x_cord)):
+							self.valid_movements.append((y_cord, x_cord))
 				else:
 					self.valid_movements.append((y_cord, x_cord))
+
 		#get rid of kings movements that are invalid
 		#eg cant move into a check position.
 		for unchecked in self.invalid_moves:
@@ -1176,14 +1192,30 @@ board = [[0,1,0,1,0,1,0,1],
 [0,1,0,1,0,1,0,1], 
 [1,0,1,0,1,0,1,0]]
 
-piece_board = [[r_rook((0,0)),r_knight((0,1)),r_bishop((0,2)),r_queen((0,3)),r_king((0,4)),r_bishop((0,5)),r_knight((0,6)),r_rook((0,7))], 
+def check(a_piece_board, king, to: (int,int)) -> bool:
+	#taking a piece should only append if taking doesnt result in check
+	#make check() function that returns true or false; by creating a 
+	#deep copy of the board, taking the peice and seeing if check is true
+	#if its true, do not append as a valid move
+	copy_for_checking = copy.deepcopy(a_piece_board)
+	copy_for_checking[to[0]][to[1]] = 0
+	king.valid_movement()
+	if to in king.valid_movements:
+		return False
+	else:
+		return True
+		
+
+
+
+piece_board = [[r_rook((0,0)),r_knight((0,1)),r_bishop((0,2)),r_queen((0,3)),0,r_bishop((0,5)),r_knight((0,6)),r_rook((0,7))], 
 [r_pawn((1,0)),r_pawn((1,1)),r_pawn((1,2)),r_pawn((1,3)),r_pawn((1,4)),r_pawn((1,5)),r_pawn((1,6)),r_pawn((1,7))], 
+[0,0,0,r_king((2,3)),0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
-[0,0,0,0,0,0,0,0], 
-[0,0,0,0,0,0,0,0], 
-[0,0,0,0,0,0,0,0], 
-[b_pawn((6,0)),b_pawn((6,1)),b_pawn((6,2)),b_pawn((6,3)),b_pawn((6,4)),b_pawn((6,5)),b_pawn((6,6)),b_pawn((6,7))], 
-[b_rook((7,0)),b_knight((7,1)),b_bishop((7,2)),b_queen((7,3)),b_king((7,4)),b_bishop((7,5)),b_knight((7,6)),b_rook((7,7))]]
+[0,0,0,b_pawn((4,3)),0,0,0,0], 
+[0,0,0,0,b_knight((5,4)),0,0,0], 
+[b_pawn((6,0)),b_pawn((6,1)),b_pawn((6,2)),b_pawn((6,3)),0,b_pawn((6,5)),b_pawn((6,6)),b_pawn((6,7))], 
+[b_rook((7,0)),b_knight((7,1)),b_bishop((7,2)),b_queen((7,3)),b_king((7,4)),b_bishop((7,5)),0,b_rook((7,7))]]
 
 def print_board(board, piece_board, piece_dictionary):
 	#os.system('cls')
