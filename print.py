@@ -24,12 +24,139 @@ class piece(ABC):
 #RED PIECES
 #    
 class r_queen(piece):
-	def __init__(self):
+	def __init__(self, pos: (int,int)):
+			self.pos = pos
+			self.valid_movements=[]
 			self.value = 9
 			self.trans = 25
 		
 	def valid_movement(self):
 		valid_movements=[]
+
+		left_vals = []
+		right_vals = []
+		down_vals = []
+		up_vals = []
+		#ADD ROOK MOVEMENT
+		for left_squares in range(self.pos[1]):
+			if isinstance(piece_board[self.pos[0]][left_squares], piece):
+				#if its same team destroy all current
+				if piece_board[self.pos[0]][left_squares].trans // 10 == 2:
+					left_vals = []
+				else:
+					#still reset as can't move through the piece but reset and add everything else
+					left_vals = []
+					left_vals.append((self.pos[0],left_squares))
+			#empty position means add
+			else:
+				left_vals.append((self.pos[0],left_squares))
+
+		for right_squares in range(self.pos[1]+1, 8):
+			if isinstance(piece_board[self.pos[0]][right_squares], piece):
+				if piece_board[self.pos[0]][right_squares].trans // 10 == 2:
+					break
+				else:
+					right_vals.append((self.pos[0],right_squares))
+					break
+			else:
+				right_vals.append((self.pos[0],right_squares))
+				#right_vals.append(piece_board[self.pos[0]][right_squares])
+
+		#for all squares starting downwards 1 beneath the rook
+		for down_squares in range(((self.pos[0]+1)), 8):
+			#if we come across a piece
+			if isinstance(piece_board[down_squares][self.pos[1]], piece):
+				if piece_board[down_squares][self.pos[1]].trans // 10 == 2:
+					break
+				else:
+					down_vals.append((down_squares, self.pos[1]))
+					break
+			else:
+				down_vals.append((down_squares, self.pos[1]))
+		#moving from top to where rook is 
+		for up_squares in range(0, self.pos[0]):
+			if isinstance(piece_board[up_squares][self.pos[1]], piece):
+				if piece_board[up_squares][self.pos[1]].trans // 10 == 2:
+					up_vals = []
+				else:
+					up_vals = []
+					up_vals.append((up_squares, self.pos[1]))
+			else:
+				up_vals.append((up_squares, self.pos[1]))
+
+		self.valid_movements = left_vals + right_vals + down_vals + up_vals
+		#ADD DIAGONAL MOVEMENT
+		y_co = self.pos[0]-1
+		x_co = self.pos[1]-1
+		#Diagonal Up-Left (y is decreasing, x is decreasing)
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 2:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co -=1 
+				x_co -=1
+		#Diagonal Up-Right (y is decreasing, x is increasing)
+		#reset these
+		y_co = self.pos[0]-1
+		x_co = self.pos[1]+1
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 2:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co -=1 
+				x_co +=1
+		#Diagonal Down-Left (y is increasing, x is decreasing)
+		y_co = self.pos[0]+1
+		x_co = self.pos[1]-1
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 2:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co +=1 
+				x_co -=1
+		#Diagonal Down-Right (y is increasing, x is increasing)
+		y_co = self.pos[0]+1
+		x_co = self.pos[1]+1
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 2:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co +=1 
+				x_co +=1
+		
+
     
 class r_rook(piece):
 	def __init__(self, pos):
@@ -99,12 +226,127 @@ class r_rook(piece):
 		self.valid_movements = left_vals + right_vals + down_vals + up_vals
 		
 class r_king(piece):
-	def __init__(self):
+	def __init__(self, pos: (int,int)):
 		self.value = 10
+		self.pos = pos
+		self.valid_movements = []
 		self.trans = 26
+		self.check = False
+		self.check_mate = False
 	
 	def valid_movement(self):
-		valid_movements=[]
+		#can move in a sqaure anywhere around him. so append those values into a list. Then 
+		#iterate over the piece board and for every enemey piece check their valid movements.
+		#if there is overlap remove them from the kings valid movements
+		#if valid_movement is none then game over
+		self.valid_movements = []
+		for idx, i in enumerate(range(3)):
+			#left around
+			if idx == 1:
+				#up two
+				y_cord = self.pos[0]-1
+				#left one
+				x_cord = self.pos[1]-1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#middle left one 
+				y_cord = self.pos[0]
+				x_cord = self.pos[1]-1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#check 1 left down one
+				y_cord = self.pos[0]+1
+				x_cord = self.pos[1]-1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+			#middle top bottom
+			elif idx == 2:
+				y_cord = self.pos[0]-1
+				x_cord = self.pos[1]
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#other
+				y_cord = self.pos[0]+1
+				x_cord = self.pos[1]
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+			#right; top middle and bottom.
+			else:
+				y_cord = self.pos[0]-1
+				x_cord = self.pos[1]+1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#middle left one 
+				y_cord = self.pos[0]
+				x_cord = self.pos[1]+1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#check 1 left down one
+				y_cord = self.pos[0]+1
+				x_cord = self.pos[1]+1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+		#get rid of kings movements that are invalid
+		#eg cant move into a check position.
+		for columns in range(8):
+			for row_cells in range(8):
+				if isinstance(piece_board[columns][row_cells], piece):
+					if isinstance(piece_board[columns][row_cells], b_king):
+						#if its a blue king check if within reach and remove 
+							if (columns, row_cells) in self.valid_movements:
+								self.valid_movements.remove(columns,row_cells)
+					#if its an opposite piece
+					elif piece_board[columns][row_cells].trans // 10 != 2:
+						piece_board[columns][row_cells].valid_movement()
+						for coordinates in piece_board[columns][row_cells].valid_movements:
+							if coordinates in self.valid_movements:
+								self.valid_movements.remove(coordinates)
+
+		if len(self.valid_movements) == 0:
+			if self.check == True:
+				self.check_mate = True
+
+
         
 class r_knight(piece):
 	def __init__(self, pos: (int,int)):
@@ -305,12 +547,16 @@ class r_pawn(piece):
 				self.valid_movements=[(self.pos[0]+1, self.pos[1])]
 		#If there is a piece diagonal down one RIGHT and its not same team
 
-		if isinstance(piece_board[self.pos[0]+1][self.pos[1]+1], piece):
+		if (self.pos[0]+1) < 0 or self.pos[1]+1 < 0 or (self.pos[0]+1) >7 or self.pos[1]+1 >7:
+			pass
+		elif isinstance(piece_board[self.pos[0]+1][self.pos[1]+1], piece):
 			#not equal as we want to make sure its not red
 			if piece_board[self.pos[0]+1][self.pos[1]+1].trans // 10 != 2:
 				self.valid_movements.append((self.pos[0]+1,self.pos[1]+1))
-		# if 
-		if isinstance(piece_board[self.pos[0]+1][self.pos[1]-1], piece):
+
+		if (self.pos[0]+1) < 0 or self.pos[1]+1 < 0 or (self.pos[0]+1) >7 or self.pos[1]+1 >7:
+			pass
+		elif isinstance(piece_board[self.pos[0]+1][self.pos[1]-1], piece):
 			#if its opposite team
 			if piece_board[self.pos[0]+1][self.pos[1]+1].trans // 10 == 2:
 				self.valid_movements.append((self.pos[0]+1,self.pos[1]-1))
@@ -319,12 +565,137 @@ class r_pawn(piece):
 #   
 
 class b_queen(piece):
-	def __init__(self):
+	def __init__(self, pos:(int,int)):
 			self.value = 9
+			self.pos = pos
+			self.valid_movements = []
 			self.trans = 15
 		
 	def valid_movement(self):
-		valid_movements=[]
+		self.valid_movements = []
+		left_vals = []
+		right_vals = []
+		down_vals = []
+		up_vals = []
+		#ADD ROOK MOVEMENT
+		for left_squares in range(self.pos[1]):
+			if isinstance(piece_board[self.pos[0]][left_squares], piece):
+				#if its same team destroy all current
+				if piece_board[self.pos[0]][left_squares].trans // 10 == 1:
+					left_vals = []
+				else:
+					#still reset as can't move through the piece but reset and add everything else
+					left_vals = []
+					left_vals.append((self.pos[0],left_squares))
+			#empty position means add
+			else:
+				left_vals.append((self.pos[0],left_squares))
+
+		for right_squares in range(self.pos[1]+1, 8):
+			if isinstance(piece_board[self.pos[0]][right_squares], piece):
+				if piece_board[self.pos[0]][right_squares].trans // 10 == 1:
+					break
+				else:
+					right_vals.append((self.pos[0],right_squares))
+					break
+			else:
+				right_vals.append((self.pos[0],right_squares))
+				#right_vals.append(piece_board[self.pos[0]][right_squares])
+
+		#for all squares starting downwards 1 beneath the rook
+		for down_squares in range(((self.pos[0]+1)), 8):
+			#if we come across a piece
+			if isinstance(piece_board[down_squares][self.pos[1]], piece):
+				if piece_board[down_squares][self.pos[1]].trans // 10 == 1:
+					break
+				else:
+					down_vals.append((down_squares, self.pos[1]))
+					break
+			else:
+				down_vals.append((down_squares, self.pos[1]))
+		#moving from top to where rook is 
+		for up_squares in range(0, self.pos[0]):
+			if isinstance(piece_board[up_squares][self.pos[1]], piece):
+				if piece_board[up_squares][self.pos[1]].trans // 10 == 1:
+					up_vals = []
+				else:
+					up_vals = []
+					up_vals.append((up_squares, self.pos[1]))
+			else:
+				up_vals.append((up_squares, self.pos[1]))
+
+		self.valid_movements = left_vals + right_vals + down_vals + up_vals
+		#ADD DIAGONAL MOVEMENT
+		#create a function that takes y_co and x_co and adds to a list
+		y_co = self.pos[0]-1
+		x_co = self.pos[1]-1
+		#Diagonal Up-Left (y is decreasing, x is decreasing)
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 1:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co -=1 
+				x_co -=1
+		#Diagonal Up-Right (y is decreasing, x is increasing)
+		#reset these
+		y_co = self.pos[0]-1
+		x_co = self.pos[1]+1
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 1:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co -=1 
+				x_co +=1
+		#Diagonal Down-Left (y is increasing, x is decreasing)
+		y_co = self.pos[0]+1
+		x_co = self.pos[1]-1
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 1:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co +=1 
+				x_co -=1
+		#Diagonal Down-Right (y is increasing, x is increasing)
+		y_co = self.pos[0]+1
+		x_co = self.pos[1]+1
+		for values in range(8):
+			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
+				break
+			#if we come across a piece
+			if isinstance(piece_board[y_co][x_co], piece):
+				if piece_board[y_co][x_co].trans // 10 == 1:
+					break
+				else:
+					self.valid_movements.append((y_co,x_co))
+					break
+			else:
+				self.valid_movements.append((y_co,x_co))
+				y_co +=1 
+				x_co +=1
     
 class b_rook(piece):
 
@@ -391,12 +762,117 @@ class b_rook(piece):
 		self.valid_movements = left_vals + right_vals + down_vals + up_vals
 		
 class b_king(piece):
-	def __init__(self):
+	def __init__(self, pos:(int,int)):
 		self.value = 10
+		self.pos = pos
+		self.valid_movements = []
 		self.trans = 16
+		self.check = False
+		self.check_mate = False
 
 	def valid_movement(self):
-		valid_movements=[]
+		self.valid_movements = []
+		for idx, i in enumerate(range(3)):
+			#left around
+			if idx == 1:
+				#up two
+				y_cord = self.pos[0]-1
+				#left one
+				x_cord = self.pos[1]-1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#middle left one 
+				y_cord = self.pos[0]
+				x_cord = self.pos[1]-1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#check 1 left down one
+				y_cord = self.pos[0]+1
+				x_cord = self.pos[1]-1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+			#middle top bottom
+			elif idx == 2:
+				y_cord = self.pos[0]-1
+				x_cord = self.pos[1]
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#other
+				y_cord = self.pos[0]+1
+				x_cord = self.pos[1]
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+			#right; top middle and bottom.
+			else:
+				y_cord = self.pos[0]-1
+				x_cord = self.pos[1]+1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#middle left one 
+				y_cord = self.pos[0]
+				x_cord = self.pos[1]+1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+				#check 1 left down one
+				y_cord = self.pos[0]+1
+				x_cord = self.pos[1]+1
+				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
+					pass
+				elif isinstance(piece_board[y_cord][x_cord], piece):
+					if piece_board[y_cord][x_cord].trans // 10 != 1:
+						self.valid_movements.append((y_cord, x_cord))
+				else:
+					self.valid_movements.append((y_cord, x_cord))
+		#get rid of kings movements that are invalid
+		#eg cant move into a check position.
+		for columns in range(8):
+			for row_cells in range(8):
+				if isinstance(piece_board[columns][row_cells], piece):
+					#if its an opposite piece
+					if piece_board[columns][row_cells].trans // 10 != 1:
+						piece_board[columns][row_cells].valid_movement()
+						for coordinates in piece_board[columns][row_cells].valid_movements:
+							if coordinates in self.valid_movements:
+								self.valid_movements.remove(coordinates)
+		
+		if len(self.valid_movements) == 0:
+			if self.check == True:
+				self.check_mate = True
 
 class b_knight(piece):
 	def __init__(self, pos:(int,int)):
@@ -598,12 +1074,16 @@ class b_pawn(piece):
 				self.valid_movements=[(self.pos[0]-1, self.pos[1])]
 		#If there is a piece diagonal down one RIGHT and its not same team
 
-		if isinstance(piece_board[self.pos[0]-1][self.pos[1]+1], piece):
+		if (self.pos[0]-1) < 0 or self.pos[1]+1 < 0 or (self.pos[0]-1) >7 or self.pos[1]+1 >7:
+			pass
+		elif isinstance(piece_board[self.pos[0]-1][self.pos[1]+1], piece):
 			#if its opposite team
 			if piece_board[self.pos[0]-1][self.pos[1]+1].trans // 10 == 2:
 				self.valid_movements.append((self.pos[0]-1,self.pos[1]+1))
-		# if 
-		if isinstance(piece_board[self.pos[0]-1][self.pos[1]-1], piece):
+
+		if (self.pos[0]-1) < 0 or self.pos[1]-1 < 0 or (self.pos[0]-1) >7 or self.pos[1]-1 >7:
+			pass
+		elif isinstance(piece_board[self.pos[0]-1][self.pos[1]-1], piece):
 			#if its opposite team
 			if piece_board[self.pos[0]-1][self.pos[1]-1].trans // 10 == 2:
 				self.valid_movements.append((self.pos[0]-1,self.pos[1]-1))
@@ -626,14 +1106,14 @@ board = [[0,1,0,1,0,1,0,1],
 [0,1,0,1,0,1,0,1], 
 [1,0,1,0,1,0,1,0]]
 
-piece_board = [[r_rook((0,0)),r_knight((0,1)),r_bishop((0,2)),r_queen(),r_king(),r_bishop((0,5)),r_knight((0,6)),r_rook((0,7))], 
+piece_board = [[r_rook((0,0)),r_knight((0,1)),r_bishop((0,2)),r_queen((0,3)),r_king((0,4)),r_bishop((0,5)),r_knight((0,6)),r_rook((0,7))], 
 [r_pawn((1,0)),r_pawn((1,1)),r_pawn((1,2)),r_pawn((1,3)),r_pawn((1,4)),r_pawn((1,5)),r_pawn((1,6)),r_pawn((1,7))], 
 [0,0,0,0,0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
 [b_pawn((6,0)),b_pawn((6,1)),b_pawn((6,2)),b_pawn((6,3)),b_pawn((6,4)),b_pawn((6,5)),b_pawn((6,6)),b_pawn((6,7))], 
-[b_rook((7,0)),b_knight((7,1)),b_bishop((7,2)),b_queen(),b_king(),b_bishop((7,5)),b_knight((7,6)),b_rook((7,7))]]
+[b_rook((7,0)),b_knight((7,1)),b_bishop((7,2)),b_queen((7,3)),b_king((7,4)),b_bishop((7,5)),b_knight((7,6)),b_rook((7,7))]]
 
 def print_board(board, piece_board, piece_dictionary):
 	#os.system('cls')
