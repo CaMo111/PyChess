@@ -239,18 +239,41 @@ class r_king(piece):
 		#iterate over the piece board and for every enemey piece check their valid movements.
 		#if there is overlap remove them from the kings valid movements
 		#if valid_movement is none then game over
+		self.invalid_moves = []
 		self.valid_movements = []
+		#get all invalid coordinates
+		for columns in range(8):
+			for row_cells in range(8):
+				if isinstance(piece_board[columns][row_cells], piece):
+					if isinstance(piece_board[columns][row_cells], b_king):
+						self.invalid_moves.append((columns, row_cells))
+						self.invalid_moves.append((columns-1, row_cells))
+						self.invalid_moves.append((columns+1, row_cells))
+						self.invalid_moves.append((columns-1, row_cells-1))
+						self.invalid_moves.append((columns-1, row_cells+1))
+						self.invalid_moves.append((columns, row_cells-1))
+						self.invalid_moves.append((columns, row_cells+1))
+						self.invalid_moves.append((columns+1, row_cells-1))
+						self.invalid_moves.append((columns+1, row_cells+1))
+						
+					elif isinstance(piece_board[columns][row_cells], b_pawn):
+						self.invalid_moves.append((columns-1,row_cells-1))
+						self.invalid_moves.append((columns-1,row_cells+1))
+					elif piece_board[columns][row_cells].trans // 10 != 2:
+						piece_board[columns][row_cells].valid_movement()
+						for coordinates in piece_board[columns][row_cells].valid_movements:
+								self.invalid_moves.append(coordinates)
+
 		for idx, i in enumerate(range(3)):
 			#left around
 			if idx == 1:
-				#up two
 				y_cord = self.pos[0]-1
-				#left one
 				x_cord = self.pos[1]-1
 				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
+						#taking a piece
 						self.valid_movements.append((y_cord, x_cord))
 				else:
 					self.valid_movements.append((y_cord, x_cord))
@@ -328,20 +351,10 @@ class r_king(piece):
 					self.valid_movements.append((y_cord, x_cord))
 		#get rid of kings movements that are invalid
 		#eg cant move into a check position.
-		for columns in range(8):
-			for row_cells in range(8):
-				if isinstance(piece_board[columns][row_cells], piece):
-					if isinstance(piece_board[columns][row_cells], b_king):
-						#if its a blue king check if within reach and remove 
-							if (columns, row_cells) in self.valid_movements:
-								self.valid_movements.remove(columns,row_cells)
-					#if its an opposite piece
-					elif piece_board[columns][row_cells].trans // 10 != 2:
-						piece_board[columns][row_cells].valid_movement()
-						for coordinates in piece_board[columns][row_cells].valid_movements:
-							if coordinates in self.valid_movements:
-								self.valid_movements.remove(coordinates)
-
+		for unchecked in self.invalid_moves:
+			if unchecked in self.valid_movements:
+				self.valid_movements.remove(unchecked)
+		
 		if len(self.valid_movements) == 0:
 			if self.check == True:
 				self.check_mate = True
@@ -532,34 +545,47 @@ class r_pawn(piece):
 		self.pos = pos 
 		self.initial = True
 		self.valid_movements=[]
+		self.king_invalid = []
 
 	def valid_movement(self):
 		self.valid_movements=[]
+		self.king_invalid = []
 		if self.initial == True:
 			#if pieceboard at self.pos[0]+1, self.pos[1] is empty then add, if not dont add
-			if not(isinstance(piece_board[self.pos[0]+1][self.pos[1]],piece)):
-				self.valid_movements.append((self.pos[0]+1, self.pos[1]))
-			if not(isinstance(piece_board[self.pos[0]+2][self.pos[1]],piece)):
-				self.valid_movements.append((self.pos[0]+2, self.pos[1]))
+			if self.pos[0]+1 > 0 and self.pos[0]+1 < 8:
+				if not(isinstance(piece_board[self.pos[0]+1][self.pos[1]],piece)):
+					self.valid_movements.append((self.pos[0]+1, self.pos[1]))
+
+			if self.pos[0]+2 > 0 and self.pos[0]+2 < 8:
+				if not(isinstance(piece_board[self.pos[0]+2][self.pos[1]],piece)):
+					self.valid_movements.append((self.pos[0]+2, self.pos[1]))
+
 			self.initial = False
 		else:
 			if not(isinstance(piece_board[self.pos[0]+1][self.pos[1]],piece)):
 				self.valid_movements=[(self.pos[0]+1, self.pos[1])]
 		#If there is a piece diagonal down one RIGHT and its not same team
 
+		#Append diagonals into possible moves
 		if (self.pos[0]+1) < 0 or self.pos[1]+1 < 0 or (self.pos[0]+1) >7 or self.pos[1]+1 >7:
 			pass
 		elif isinstance(piece_board[self.pos[0]+1][self.pos[1]+1], piece):
 			#not equal as we want to make sure its not red
 			if piece_board[self.pos[0]+1][self.pos[1]+1].trans // 10 != 2:
 				self.valid_movements.append((self.pos[0]+1,self.pos[1]+1))
+				self.king_invalid.append((self.pos[0]+1,self.pos[1]+1))
+		else:
+			self.king_invalid.append((self.pos[0]+1,self.pos[1]+1))
 
 		if (self.pos[0]+1) < 0 or self.pos[1]+1 < 0 or (self.pos[0]+1) >7 or self.pos[1]+1 >7:
 			pass
 		elif isinstance(piece_board[self.pos[0]+1][self.pos[1]-1], piece):
 			#if its opposite team
 			if piece_board[self.pos[0]+1][self.pos[1]+1].trans // 10 == 2:
+				self.king_invalid.append((self.pos[0]-1,self.pos[1]-1))
 				self.valid_movements.append((self.pos[0]+1,self.pos[1]-1))
+		else:
+			self.king_invalid.append((self.pos[0]+1,self.pos[1]+1))
 #
 #BLUE PIECES
 #   
@@ -863,12 +889,48 @@ class b_king(piece):
 		for columns in range(8):
 			for row_cells in range(8):
 				if isinstance(piece_board[columns][row_cells], piece):
-					#if its an opposite piece
-					if piece_board[columns][row_cells].trans // 10 != 1:
+					#if its an opposite king
+					if isinstance(piece_board[columns][row_cells], r_king):
+						if (columns, row_cells) in self.valid_movements:
+								self.valid_movements.remove((columns,row_cells))
+							#ABOVE LEFT RIGHT
+						if columns-1 > 0 and columns-1 < 8:
+							if (columns-1, row_cells) in self.valid_movements:
+								self.valid_movements.remove((columns-1,row_cells))
+								if row_cells-1 >0 and row_cells-1 <8:
+									if (columns-1, row_cells-1) in self.valid_movements:
+										self.valid_movements.remove((columns-1,row_cells-1))
+								if row_cells+1 >0 and row_cells+1 <8:
+									if (columns-1, row_cells+1) in self.valid_movements:
+										self.valid_movements.remove((columns-1,row_cells+1))
+						#BELOW LEFT RIGHT
+						if columns+1 > 0 and columns+1 < 8:
+							if (columns+1, row_cells) in self.valid_movements:
+								self.valid_movements.remove((columns+1,row_cells))
+								if row_cells-1 >0 and row_cells-1 <8:
+									if (columns+1, row_cells-1) in self.valid_movements:
+										self.valid_movements.remove((columns+1,row_cells-1))
+								if row_cells+1 >0 and row_cells+1 <8:
+									if (columns+1, row_cells+1) in self.valid_movements:
+										self.valid_movements.remove((columns+1,row_cells+1))
+						if row_cells-1 > 0 and row_cells-1 <8:
+							if (columns, row_cells-1) in self.valid_movements:
+								self.valid_movements.remove((columns,row_cells-1))
+						if row_cells+1 > 0 and row_cells+1 <8:
+							if (columns, row_cells+1) in self.valid_movements:
+								self.valid_movements.remove((columns,row_cells+1))
+					# if its a pawn
+					#if its an opposite but not king
+					elif piece_board[columns][row_cells].trans // 10 != 1:
 						piece_board[columns][row_cells].valid_movement()
-						for coordinates in piece_board[columns][row_cells].valid_movements:
-							if coordinates in self.valid_movements:
-								self.valid_movements.remove(coordinates)
+						if isinstance(piece_board[columns][row_cells], r_pawn):
+							for coordinates in piece_board[columns][row_cells].king_invalid:
+								if coordinates in self.valid_movements:
+									self.valid_movements.remove(coordinates)
+						else:
+							for coordinates in piece_board[columns][row_cells].valid_movements:
+								if coordinates in self.valid_movements:
+									self.valid_movements.remove(coordinates)
 		
 		if len(self.valid_movements) == 0:
 			if self.check == True:
@@ -1058,10 +1120,12 @@ class b_pawn(piece):
 		self.trans = 11
 		self.initial = True
 		valid_movements=[]
+		self.king_invalid = []
 		self.pos = pos
 	
 	def valid_movement(self):
 		self.valid_movements=[]
+		self.king_invalid =[]
 		if self.initial == True:
 			#if pieceboard at self.pos[0]+1, self.pos[1] is empty then add, if not dont add
 			if not(isinstance(piece_board[self.pos[0]-1][self.pos[1]],piece)):
@@ -1080,13 +1144,19 @@ class b_pawn(piece):
 			#if its opposite team
 			if piece_board[self.pos[0]-1][self.pos[1]+1].trans // 10 == 2:
 				self.valid_movements.append((self.pos[0]-1,self.pos[1]+1))
+				self.king_invalid.append((self.pos[0]+1,self.pos[1]+1))
+		else:
+			self.king_invalid.append((self.pos[0]+1,self.pos[1]+1))
 
 		if (self.pos[0]-1) < 0 or self.pos[1]-1 < 0 or (self.pos[0]-1) >7 or self.pos[1]-1 >7:
 			pass
 		elif isinstance(piece_board[self.pos[0]-1][self.pos[1]-1], piece):
 			#if its opposite team
 			if piece_board[self.pos[0]-1][self.pos[1]-1].trans // 10 == 2:
+				self.king_invalid.append((self.pos[0]-1,self.pos[1]-1))
 				self.valid_movements.append((self.pos[0]-1,self.pos[1]-1))
+		else:
+			self.king_invalid.append((self.pos[0]+1,self.pos[1]+1))
 
 #========================================================================================================================================================================
 #
@@ -1152,8 +1222,18 @@ def print_board(board, piece_board, piece_dictionary):
 	print(Fore.BLACK +"   a",Fore.BLACK +" b",Fore.BLACK +" c",Fore.BLACK +" d",Fore.BLACK +" e",Fore.BLACK +" f",Fore.BLACK +" g",Fore.BLACK +" h ")
 
 def make_movement(dep, to):
+	try:
+		test = piece_board[pos_system[dep][0]][pos_system[dep][1]]
+		pass
+	except:
+		print("Keyed a position that doesn't exist; enter to a position that you can move to")
+		fro, to = str(input("where from")), str(input("where to"))
+		make_movement(fro, to)
+
 	if dep == to:
-		raise ValueError
+		print("You cannot move to the same sqaure")
+		fro, to = str(input("where from")), str(input("where to"))
+		make_movement(fro, to)
 	#if there is a piece at the dep position
 	if isinstance(piece_board[pos_system[dep][0]][pos_system[dep][1]], piece):
 		moving_piece = piece_board[pos_system[dep][0]][pos_system[dep][1]]
@@ -1178,11 +1258,12 @@ def make_movement(dep, to):
 				piece_board[pos_system[to][0]][pos_system[to][1]] = moving_piece
 		else:
 			print("Moving to a position that you cant move to")
-			raise ValueError
+			fro, to = str(input("where from")), str(input("where to"))
+			make_movement(fro, to)
 	else:
 		print("There is no piece selected")
-		raise ValueError
-
+		fro, to = str(input("where from")), str(input("where to"))
+		make_movement(fro, to)
 
 pos_system = {
 	"a8" : (0,0),
