@@ -234,12 +234,15 @@ class r_king(piece):
 		self.trans = 26
 		self.check = False
 		self.check_mate = False
+		self.future = False
 	
 	def valid_movement(self):
 		#can move in a sqaure anywhere around him. so append those values into a list. Then 
 		#iterate over the piece board and for every enemey piece check their valid movements.
 		#if there is overlap remove them from the kings valid movements
 		#if valid_movement is none then game over
+		#future boolean basically is false in any normal move but when true is if 
+		#the check() function is predicting if a move will put the king in check
 		self.invalid_moves = []
 		self.valid_movements = []
 		#get all invalid coordinates
@@ -265,7 +268,7 @@ class r_king(piece):
 						if piece_board[columns][row_cells].trans // 10 != 2:
 							piece_board[columns][row_cells].valid_movement()
 							for coordinates in piece_board[columns][row_cells].valid_movements:
-									self.invalid_moves.append(coordinates)
+								self.invalid_moves.append(coordinates)
 
 		for idx, i in enumerate(range(3)):
 			#left around
@@ -281,8 +284,10 @@ class r_king(piece):
 						#deep copy of the board, taking the peice and seeing if check is true
 						#if its true, do not append as a valid move
 						#if moving doesn't result in check
-						if not check(piece_dictionary, self, (y_cord,x_cord)):
-							self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#middle left one 
@@ -292,8 +297,10 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						if not check(piece_dictionary, self, (y_cord,x_cord)):
-							self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#check 1 left down one
@@ -303,8 +310,10 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						if not check(piece_dictionary, self, (y_cord,x_cord)):
-							self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 			#middle top bottom
@@ -315,8 +324,9 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						if not check(piece_dictionary, self, (y_cord,x_cord)):
-							self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#other
@@ -326,8 +336,10 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						if not check(piece_dictionary, self, (y_cord,x_cord)):
-							self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 			#right; top middle and bottom.
@@ -338,8 +350,10 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						if not check(piece_dictionary, self, (y_cord,x_cord)):
-							self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#middle left one 
@@ -349,8 +363,10 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						if not check(piece_dictionary, self, (y_cord,x_cord)):
-							self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#check 1 left down one
@@ -360,8 +376,10 @@ class r_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 2:
-						if not check(piece_dictionary, self, (y_cord,x_cord)):
-							self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 
@@ -540,7 +558,7 @@ class r_bishop(piece):
 			if y_co < 0 or x_co < 0 or y_co > 7 or x_co > 7:
 				break
 			#if we come across a piece
-			if isinstance(piece_board[y_co][x_co], piece):
+			if isinstance(piece_board[y_co][x_co], piece): 
 				if piece_board[y_co][x_co].trans // 10 == 2:
 					break
 				else:
@@ -811,21 +829,54 @@ class b_king(piece):
 		self.trans = 16
 		self.check = False
 		self.check_mate = False
+		self.future = False
 
 	def valid_movement(self):
+		self.invalid_moves = []
 		self.valid_movements = []
+		#get all invalid coordinates
+		#adding every non good move
+		for columns in range(8):
+			for row_cells in range(8):
+				if isinstance(piece_board[columns][row_cells], piece):
+					if isinstance(piece_board[columns][row_cells], r_king):
+						self.invalid_moves.append((columns, row_cells))
+						self.invalid_moves.append((columns-1, row_cells))
+						self.invalid_moves.append((columns+1, row_cells))
+						self.invalid_moves.append((columns-1, row_cells-1))
+						self.invalid_moves.append((columns-1, row_cells+1))
+						self.invalid_moves.append((columns, row_cells-1))
+						self.invalid_moves.append((columns, row_cells+1))
+						self.invalid_moves.append((columns+1, row_cells-1))
+						self.invalid_moves.append((columns+1, row_cells+1))
+
+					elif isinstance(piece_board[columns][row_cells], r_pawn):
+						self.invalid_moves.append((columns-1,row_cells-1))
+						self.invalid_moves.append((columns-1,row_cells+1))
+					else:
+						if piece_board[columns][row_cells].trans // 10 != 2:
+							piece_board[columns][row_cells].valid_movement()
+							for coordinates in piece_board[columns][row_cells].valid_movements:
+								self.invalid_moves.append(coordinates)
+
 		for idx, i in enumerate(range(3)):
 			#left around
 			if idx == 1:
-				#up two
 				y_cord = self.pos[0]-1
-				#left one
 				x_cord = self.pos[1]-1
 				if (y_cord) < 0 or (x_cord) < 0 or (y_cord) >7 or (x_cord) >7:
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 1:
-						self.valid_movements.append((y_cord, x_cord))
+						#taking a piece should only append if taking doesnt result in check
+						#make check() function that returns true or false; by creating a 
+						#deep copy of the board, taking the peice and seeing if check is true
+						#if its true, do not append as a valid move
+						#if moving doesn't result in check
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#middle left one 
@@ -835,7 +886,10 @@ class b_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 1:
-						self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#check 1 left down one
@@ -845,7 +899,10 @@ class b_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 1:
-						self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 			#middle top bottom
@@ -856,7 +913,9 @@ class b_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 1:
-						self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#other
@@ -866,7 +925,10 @@ class b_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 1:
-						self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 			#right; top middle and bottom.
@@ -877,7 +939,10 @@ class b_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 1:
-						self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#middle left one 
@@ -887,7 +952,10 @@ class b_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 1:
-						self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
 				#check 1 left down one
@@ -897,56 +965,18 @@ class b_king(piece):
 					pass
 				elif isinstance(piece_board[y_cord][x_cord], piece):
 					if piece_board[y_cord][x_cord].trans // 10 != 1:
-						self.valid_movements.append((y_cord, x_cord))
+						if self.future:
+							if not check(piece_board, self, (y_cord,x_cord)):
+								self.valid_movements.append((y_cord, x_cord))
+								self.future = False
 				else:
 					self.valid_movements.append((y_cord, x_cord))
+
 		#get rid of kings movements that are invalid
 		#eg cant move into a check position.
-		for columns in range(8):
-			for row_cells in range(8):
-				if isinstance(piece_board[columns][row_cells], piece):
-					#if its an opposite king
-					if isinstance(piece_board[columns][row_cells], r_king):
-						if (columns, row_cells) in self.valid_movements:
-								self.valid_movements.remove((columns,row_cells))
-							#ABOVE LEFT RIGHT
-						if columns-1 > 0 and columns-1 < 8:
-							if (columns-1, row_cells) in self.valid_movements:
-								self.valid_movements.remove((columns-1,row_cells))
-								if row_cells-1 >0 and row_cells-1 <8:
-									if (columns-1, row_cells-1) in self.valid_movements:
-										self.valid_movements.remove((columns-1,row_cells-1))
-								if row_cells+1 >0 and row_cells+1 <8:
-									if (columns-1, row_cells+1) in self.valid_movements:
-										self.valid_movements.remove((columns-1,row_cells+1))
-						#BELOW LEFT RIGHT
-						if columns+1 > 0 and columns+1 < 8:
-							if (columns+1, row_cells) in self.valid_movements:
-								self.valid_movements.remove((columns+1,row_cells))
-								if row_cells-1 >0 and row_cells-1 <8:
-									if (columns+1, row_cells-1) in self.valid_movements:
-										self.valid_movements.remove((columns+1,row_cells-1))
-								if row_cells+1 >0 and row_cells+1 <8:
-									if (columns+1, row_cells+1) in self.valid_movements:
-										self.valid_movements.remove((columns+1,row_cells+1))
-						if row_cells-1 > 0 and row_cells-1 <8:
-							if (columns, row_cells-1) in self.valid_movements:
-								self.valid_movements.remove((columns,row_cells-1))
-						if row_cells+1 > 0 and row_cells+1 <8:
-							if (columns, row_cells+1) in self.valid_movements:
-								self.valid_movements.remove((columns,row_cells+1))
-					# if its a pawn
-					#if its an opposite but not king
-					elif piece_board[columns][row_cells].trans // 10 != 1:
-						piece_board[columns][row_cells].valid_movement()
-						if isinstance(piece_board[columns][row_cells], r_pawn):
-							for coordinates in piece_board[columns][row_cells].king_invalid:
-								if coordinates in self.valid_movements:
-									self.valid_movements.remove(coordinates)
-						else:
-							for coordinates in piece_board[columns][row_cells].valid_movements:
-								if coordinates in self.valid_movements:
-									self.valid_movements.remove(coordinates)
+		for unchecked in self.invalid_moves:
+			if unchecked in self.valid_movements:
+				self.valid_movements.remove(unchecked)
 		
 		if len(self.valid_movements) == 0:
 			if self.check == True:
@@ -1197,9 +1227,20 @@ def check(a_piece_board, king, to: (int,int)) -> bool:
 	#make check() function that returns true or false; by creating a 
 	#deep copy of the board, taking the peice and seeing if check is true
 	#if its true, do not append as a valid move
-	copy_for_checking = copy.deepcopy(a_piece_board)
+	'''copy_for_checking = copy.deepcopy(a_piece_board)
+	print(copy_for_checking)
 	copy_for_checking[to[0]][to[1]] = 0
 	king.valid_movement()
+	if to in king.valid_movements:
+		return False
+	else:
+		return True'''
+	copy_for_checking = [row[:] for row in a_piece_board]
+	print(copy_for_checking)
+	king.future = True
+	copy_for_checking[to[0]][to[1]] = 0
+	king.valid_movement()
+	print("called")
 	if to in king.valid_movements:
 		return False
 	else:
@@ -1210,11 +1251,11 @@ def check(a_piece_board, king, to: (int,int)) -> bool:
 
 piece_board = [[r_rook((0,0)),r_knight((0,1)),r_bishop((0,2)),r_queen((0,3)),0,r_bishop((0,5)),r_knight((0,6)),r_rook((0,7))], 
 [r_pawn((1,0)),r_pawn((1,1)),r_pawn((1,2)),r_pawn((1,3)),r_pawn((1,4)),r_pawn((1,5)),r_pawn((1,6)),r_pawn((1,7))], 
-[0,0,0,r_king((2,3)),0,0,0,0], 
 [0,0,0,0,0,0,0,0], 
-[0,0,0,b_pawn((4,3)),0,0,0,0], 
-[0,0,0,0,b_knight((5,4)),0,0,0], 
-[b_pawn((6,0)),b_pawn((6,1)),b_pawn((6,2)),b_pawn((6,3)),0,b_pawn((6,5)),b_pawn((6,6)),b_pawn((6,7))], 
+[0,0,0,0,0,0,0,0], 
+[r_king((4,0)),0,0,b_pawn((4,3)),0,0,0,0], 
+[b_pawn((5,0)),0,0,0,b_knight((5,4)),0,0,0], 
+[0,b_pawn((6,1)),b_pawn((6,2)),b_pawn((6,3)),0,b_pawn((6,5)),b_pawn((6,6)),b_pawn((6,7))], 
 [b_rook((7,0)),b_knight((7,1)),b_bishop((7,2)),b_queen((7,3)),b_king((7,4)),b_bishop((7,5)),0,b_rook((7,7))]]
 
 def print_board(board, piece_board, piece_dictionary):
