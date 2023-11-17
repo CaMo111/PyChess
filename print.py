@@ -237,6 +237,7 @@ class r_king(piece):
 		self.future = False
 	
 	def valid_movement(self):
+		self.check = False
 		#can move in a sqaure anywhere around him. so append those values into a list. Then 
 		#iterate over the piece board and for every enemey piece check their valid movements.
 		#if there is overlap remove them from the kings valid movements
@@ -386,6 +387,8 @@ class r_king(piece):
 		#get rid of kings movements that are invalid
 		#eg cant move into a check position.
 		for unchecked in self.invalid_moves:
+			if unchecked == self.pos:
+				self.check = True
 			if unchecked in self.valid_movements:
 				self.valid_movements.remove(unchecked)
 		
@@ -854,7 +857,7 @@ class b_king(piece):
 						self.invalid_moves.append((columns-1,row_cells-1))
 						self.invalid_moves.append((columns-1,row_cells+1))
 					else:
-						if piece_board[columns][row_cells].trans // 10 != 2:
+						if piece_board[columns][row_cells].trans // 10 != 1:
 							piece_board[columns][row_cells].valid_movement()
 							for coordinates in piece_board[columns][row_cells].valid_movements:
 								self.invalid_moves.append(coordinates)
@@ -1222,6 +1225,17 @@ board = [[0,1,0,1,0,1,0,1],
 [0,1,0,1,0,1,0,1], 
 [1,0,1,0,1,0,1,0]]
 
+def check_if_king_needs_to_move() -> bool:
+	for column in range(8):
+		for row_cell in range(8):
+			if isinstance(piece_board[column][row_cell], r_king):
+				piece_board[column][row_cell].valid_movement()
+				if piece_board[column][row_cell].check == True:
+					return True
+				else:
+					return False
+
+
 def check(a_piece_board, king, to: (int,int)) -> bool:
 	#taking a piece should only append if taking doesnt result in check
 	#make check() function that returns true or false; by creating a 
@@ -1240,7 +1254,6 @@ def check(a_piece_board, king, to: (int,int)) -> bool:
 	king.future = True
 	copy_for_checking[to[0]][to[1]] = 0
 	king.valid_movement()
-	print("called")
 	if to in king.valid_movements:
 		return False
 	else:
@@ -1302,6 +1315,8 @@ def make_movement(dep, to):
 		print("Keyed a position that doesn't exist; enter to a position that you can move to")
 		fro, to = str(input("where from")), str(input("where to"))
 		make_movement(fro, to)
+	#this isn't being called because it is always saying its in check before being able to move
+	#check if depart is king location
 
 	if dep == to:
 		print("You cannot move to the same sqaure")
@@ -1312,6 +1327,8 @@ def make_movement(dep, to):
 		moving_piece = piece_board[pos_system[dep][0]][pos_system[dep][1]]
 		#update the valid coordinate to move onto
 		moving_piece.valid_movement()
+		#check must come after valid_movement
+
 		#if where we are moving to is valid
 		if pos_system[to] in moving_piece.valid_movements:
 			#if there is nothing where we are going
@@ -1434,6 +1451,22 @@ def gen_game():
 	while not game_over:
 		print_board(board, piece_board, piece_dictionary)
 		fro, to = str(input("where from")), str(input("where to"))
+		if check_if_king_needs_to_move() == True:
+			print("king is in check, you must move the king")
+			fro, to = str(input("where from")), str(input("where to"))
+			#check if king is in check,
+			#fro is not being updated here fix later
+			for column in range(8):
+				for row_cell in range(8):
+					if isinstance(piece_board[column][row_cell], r_king):
+						if (pos_system[fro]) != (column,row_cell):
+							while (pos_system[fro]) != (column,row_cell):
+								print("you must move the KING")
+								print(fro, (column,row_cell))
+								fro, to = str(input("where from")), str(input("where to"))
+			make_movement(fro, to)
+			print_board(board, piece_board, piece_dictionary)
+
 		make_movement(fro, to)
 
 
