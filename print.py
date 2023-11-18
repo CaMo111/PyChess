@@ -1422,6 +1422,7 @@ piece_dictionary = {
 }
 
 def gen_game():
+	#This needs rewriting
 	game_over=False
 	while not game_over:
 		print_board(board, piece_board, piece_dictionary)
@@ -1444,6 +1445,7 @@ def gen_game():
 #instead of making the movement for us, we could make make_movement return the coordinate that is changing, and therefore when in gen_game is called if king is 
 #in check, seew if make_movement != False and if king.check != True; then follow through
 def make_movement(dep, to):
+	#This needs rewriting
 	try:
 		test = piece_board[pos_system[dep][0]][pos_system[dep][1]]
 		pass
