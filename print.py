@@ -1266,13 +1266,11 @@ def piece_saving_check(a_piece_board, king, fro:(int,int), to:(int,int)) -> bool
 	#returns True if the move saves the king
 	'''
 	copy_for_checking = [row[:] for row in a_piece_board]
-	pos = pos_system[fro]
-	moving_piece = piece_board[pos[0]][pos[1]]
+	moving_piece = piece_board[fro[0]][fro[1]]
 	print(moving_piece)
 	piece_board[moving_piece.pos[0]][moving_piece.pos[1]] = 0
 
-	to_pos = pos_system[to]
-	piece_board[to_pos[0]][to_pos[1]] = moving_piece
+	piece_board[to[0]][to[1]] = moving_piece
 	king.valid_movement()
 
 	if king.check == True:
@@ -1427,21 +1425,29 @@ def gen_game():
 	while not game_over:
 		print_board(board, piece_board, piece_dictionary)
 		fro, to = str(input("where from")), str(input("where to"))
-		while check_if_king_needs_to_move() == True:
-			print("king is in check, you must move the king")
-			fro, to = str(input("where from")), str(input("where to"))
-			for columns in range(8):
-				for cells in range(8):
-					if isinstance(piece_board[columns][cells], r_king):
-						kingpos = piece_board[columns][cells]
-			if piece_saving_check(piece_board, kingpos, fro, to) == True:
+
+		if check_if_king_needs_to_move() == True:
+			while check_if_king_needs_to_move() == True:
+				print("king is in check, you must move the king")
+				fro, to = str(input("where from")), str(input("where to"))
+				for columns in range(8):
+					for cells in range(8):
+						if isinstance(piece_board[columns][cells], r_king):
+							kingpos = piece_board[columns][cells]
+
+				fro_pos, to_pos = pos_system[fro], pos_system[to]
+				if piece_saving_check(piece_board, kingpos, fro_pos, to_pos) == True:
+					make_movement(fro, to)
+					#print_board(board, piece_board, piece_dictionary)
+				else:
+					print("movement does not save the king, try again ")
+		else:
+			try:
 				make_movement(fro, to)
-				#print_board(board, piece_board, piece_dictionary)
-			else:
-				print("movement does not save the king, try again ")
-		make_movement(fro, to)
-		print_board(board, piece_board, piece_dictionary)
-		
+				print_board(board, piece_board, piece_dictionary)
+			except:
+				print("invalid move, try again")
+			
 #instead of making the movement for us, we could make make_movement return the coordinate that is changing, and therefore when in gen_game is called if king is 
 #in check, seew if make_movement != False and if king.check != True; then follow through
 def make_movement(dep, to):
@@ -1449,17 +1455,14 @@ def make_movement(dep, to):
 	try:
 		test = piece_board[pos_system[dep][0]][pos_system[dep][1]]
 		pass
+
 	except:
 		print("Keyed a position that doesn't exist; enter to a position that you can move to")
-		fro, to = str(input("where from")), str(input("where to"))
-		make_movement(fro, to)
-	#this isn't being called because it is always saying its in check before being able to move
-	#check if depart is king location
-
+		test = piece_board[pos_system[dep][-10]][pos_system[to][-10]]
 	if dep == to:
 		print("You cannot move to the same sqaure")
-		fro, to = str(input("where from")), str(input("where to"))
-		make_movement(fro, to)
+		test = piece_board[pos_system[dep][-10]][pos_system[to][-10]]
+
 	#if there is a piece at the dep position
 	if isinstance(piece_board[pos_system[dep][0]][pos_system[dep][1]], piece):
 		moving_piece = piece_board[pos_system[dep][0]][pos_system[dep][1]]
@@ -1486,12 +1489,10 @@ def make_movement(dep, to):
 				piece_board[pos_system[to][0]][pos_system[to][1]] = moving_piece
 		else:
 			print("Moving to a position that you cant move to")
-			fro, to = str(input("where from")), str(input("where to"))
-			make_movement(fro, to)
+			test = piece_board[pos_system[dep][-10]][pos_system[to][-10]]
 	else:
 		print("There is no piece selected")
-		fro, to = str(input("where from")), str(input("where to"))
-		make_movement(fro, to)
+		test = piece_board[pos_system[dep][-10]][pos_system[to][-10]]
 
 #========================================================================================================================================================================
 #
