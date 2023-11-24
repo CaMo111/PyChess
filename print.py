@@ -1225,7 +1225,12 @@ board = [[0,1,0,1,0,1,0,1],
 [0,1,0,1,0,1,0,1], 
 [1,0,1,0,1,0,1,0]]
 
+
+
 def check_if_king_needs_to_move() -> bool:
+	'''
+	FUNCTION THAT RETURNS IF THE KING IS IN CHECK OR NOT
+	'''
 	for column in range(8):
 		for row_cell in range(8):
 			if isinstance(piece_board[column][row_cell], r_king):
@@ -1241,14 +1246,12 @@ def check(a_piece_board, king, to: (int,int)) -> bool:
 	#make check() function that returns true or false; by creating a 
 	#copy of the board, taking the peice and seeing if check is true
 	#if its true, do not append as a valid move
-	'''copy_for_checking = copy.deepcopy(a_piece_board)
-	print(copy_for_checking)
-	copy_for_checking[to[0]][to[1]] = 0
-	king.valid_movement()
-	if to in king.valid_movements:
-		return False
-	else:
-		return True'''
+	'''FUNCTION THAT CREATES A COPY OF THE BOARD
+	AND VERIFYS THAT IF THERE WASN"T A PIECE THERE
+	IT IS A VALID MOVEMENT. 
+	RETURN TRUE WHEN TAKING PIECE IS VALID
+	RETURN FALSE WHEN TAKING PIECE INVALID
+	'''
 	copy_for_checking = [row[:] for row in a_piece_board]
 	king.future = True
 	copy_for_checking[to[0]][to[1]] = 0
@@ -1258,13 +1261,16 @@ def check(a_piece_board, king, to: (int,int)) -> bool:
 	else:
 		return True
 	
-def piece_saving_check(a_piece_board, king, fro:(int,int), to:(int,int)) -> bool:
+def piece_saving_check(a_piece_board, king, fro, to) -> bool:
 	'''
 	This function checks if moving a piece will save the king 
 	from being in check
 	#returns false if the move is not allowed
 	#returns True if the move saves the king
 	'''
+	fro = pos_system[fro]
+	to = pos_system[to]
+
 	copy_for_checking = [row[:] for row in a_piece_board]
 	moving_piece = piece_board[fro[0]][fro[1]]
 	print(moving_piece)
@@ -1419,80 +1425,44 @@ piece_dictionary = {
 	26 : " ♚ "
 }
 
+def move_a_piece(dep, to):
+	y_dep = pos_system[dep][0]
+	x_dep = pos_system[dep][1]
+
+	y_to = pos_system[to][0]
+	x_to = pos_system[to][1]
+
+	#if the thing at dep is a piece
+	moving_piece = piece_board[y_dep][x_dep]
+	if isinstance(moving_piece, piece):
+		piece_board[y_to][x_to] = moving_piece
+		piece_board[y_dep][x_dep] = 0
+
 def gen_game():
-	#This needs rewriting
-	game_over=False
-	while not game_over:
+	game_over = False
+	while game_over == False:
 		print_board(board, piece_board, piece_dictionary)
-		fro, to = str(input("where from")), str(input("where to"))
+		if check_if_king_needs_to_move():
+			while check_if_king_needs_to_move():
+				for column in range(8):
+					for row_cell in range(8):
+						if isinstance(piece_board[column][row_cell], r_king):
+							king_in_check = piece_board[column][row_cell]
 
-		if check_if_king_needs_to_move() == True:
-			while check_if_king_needs_to_move() == True:
-				print("king is in check, you must move the king")
-				fro, to = str(input("where from")), str(input("where to"))
-				for columns in range(8):
-					for cells in range(8):
-						if isinstance(piece_board[columns][cells], r_king):
-							kingpos = piece_board[columns][cells]
-
-				fro_pos, to_pos = pos_system[fro], pos_system[to]
-				if piece_saving_check(piece_board, kingpos, fro_pos, to_pos) == True:
-					make_movement(fro, to)
-					#print_board(board, piece_board, piece_dictionary)
+				print("king is in check")
+				dep_mov = str(input("Where move from: "))
+				to_mov = str(input("Where move to: "))
+				if piece_saving_check(piece_board, king_in_check, dep_mov, to_mov):
+					move_a_piece(dep_mov, to_mov)
+					print_board(board, piece_board, piece_dictionary)
 				else:
-					print("movement does not save the king, try again ")
+					print("movement doesn't save king, try again")
+
 		else:
-			try:
-				make_movement(fro, to)
-				print_board(board, piece_board, piece_dictionary)
-			except:
-				print("invalid move, try again")
-			
-#instead of making the movement for us, we could make make_movement return the coordinate that is changing, and therefore when in gen_game is called if king is 
-#in check, seew if make_movement != False and if king.check != True; then follow through
-def make_movement(dep, to):
-	#This needs rewriting
-	try:
-		test = piece_board[pos_system[dep][0]][pos_system[dep][1]]
-		pass
-
-	except:
-		print("Keyed a position that doesn't exist; enter to a position that you can move to")
-		test = piece_board[pos_system[dep][-10]][pos_system[to][-10]]
-	if dep == to:
-		print("You cannot move to the same sqaure")
-		test = piece_board[pos_system[dep][-10]][pos_system[to][-10]]
-
-	#if there is a piece at the dep position
-	if isinstance(piece_board[pos_system[dep][0]][pos_system[dep][1]], piece):
-		moving_piece = piece_board[pos_system[dep][0]][pos_system[dep][1]]
-		#update the valid coordinate to move onto
-		moving_piece.valid_movement()
-		#check must come after valid_movement
-
-		#if where we are moving to is valid
-		if pos_system[to] in moving_piece.valid_movements:
-			#if there is nothing where we are going
-			if not(isinstance(piece_board[pos_system[to][0]][pos_system[to][1]], piece)):
-				moving_piece.pos = (pos_system[to][0], pos_system[to][1])
-				#make old pieceboard piece nothing
-				piece_board[pos_system[dep][0]][pos_system[dep][1]] = 0
-				#make new pieceboard position new piece
-				piece_board[pos_system[to][0]][pos_system[to][1]] = moving_piece
-			else:
-				#There is something where we are moving and have to replace it
-				piece_board[pos_system[to][0]][pos_system[to][1]] = 0
-				moving_piece.pos = (pos_system[to][0], pos_system[to][1])
-				#make old pieceboard piece nothing
-				piece_board[pos_system[dep][0]][pos_system[dep][1]] = 0
-				#make new pieceboard position new piece
-				piece_board[pos_system[to][0]][pos_system[to][1]] = moving_piece
-		else:
-			print("Moving to a position that you cant move to")
-			test = piece_board[pos_system[dep][-10]][pos_system[to][-10]]
-	else:
-		print("There is no piece selected")
-		test = piece_board[pos_system[dep][-10]][pos_system[to][-10]]
+			fro = str(input("Where move from: "))
+			to = str(input("Where move to: "))
+			move_a_piece(fro, to)
+			print_board(board, piece_board, piece_dictionary)
 
 #========================================================================================================================================================================
 #
@@ -1502,5 +1472,7 @@ def make_movement(dep, to):
 #2 = red
 #1 = blue
 gen_game()
+#Rewrite gen_Game 
+#Rewrite make move
 
 #have to update the piece board each time to print
